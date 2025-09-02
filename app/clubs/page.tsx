@@ -1,4 +1,16 @@
+// // used for testing any page before changing
+// import React from 'react'
 
+// function AboutPage() {
+//   return (
+//     <div>About Page</div>
+//   )
+// }
+
+// export default AboutPage
+
+
+// app/links/page.tsx
 import { Button } from '@/components/ui/button';
 import { createServerSupabase } from '@/lib/supabaseServer';
 import { Link2Icon } from 'lucide-react';
@@ -18,6 +30,7 @@ export default async function LinksPage() {
   const { data: links, error } = await supabase
     .from('links')
     .select('id,title,url,category,created_at,description')
+    .eq('category', 'clubs')
     .order('id', { ascending: true });
 
   if (error) {
@@ -36,7 +49,7 @@ export default async function LinksPage() {
           showBorder={false}
           // className="custom-class"
         >
-          College Portals & Links <span role="img" aria-label="link">🔗</span>
+          Clubs <span role="img" aria-label="link">💡</span>
         </GradientText>
       </h1>
       

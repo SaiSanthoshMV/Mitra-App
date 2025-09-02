@@ -21,6 +21,8 @@ const navigationLinks = [
   { href: "/links", label: "Links" },
   { href: "/resources", label: "Resources" },
   { href: "/placements", label: "Placements" },
+  { href: "/company", label: "Company" },
+  { href: "/clubs", label: "Clubs" }
 ]
 
 export default function Component() {
