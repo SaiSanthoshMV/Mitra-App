@@ -1,69 +1,8 @@
-// "use client";
-// import ElectricBorder from "@/components/blocks/Animations/ElectricBorder/ElectricBorder";
-// import ModeToggle from "@/components/ModeToggle";
-// import { Button } from "@/components/ui/button";
-// import { Card } from "@/components/ui/card";
-// import Image from "next/image";
-
-// export default function Home() {
-//   return (
-//     <div className="m-4">
-//       <div className="p-4 flex flex-col items-center justify-center text-center">
-//         <h1 className="text-5xl font-extrabold mb-4 text-cyan-400">Welcome to MITRA</h1>
-//         <p className="text-xl max-w-2xl mb-8 text-gray-700 dark:text-gray-300">
-//           Your all-in-one companion for a seamless college experience. MITRA provides easy access to all important college links, study materials, and placement records.
-//         </p>
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mt-8">
-//           <ElectricBorder
-//             color="#7df9ff"
-//             speed={1}
-//             chaos={0.4}
-//             thickness={2}
-//             style={{ borderRadius: 16 }}
-//           >
-//             <a href="/links">
-//               <div className="p-6 text-left">
-//                 <h2 className="text-2xl font-bold mb-2">Links</h2>
-//                 <p className="text-gray-600 dark:text-gray-400">Find all college portals like results, fee payment, and more, conveniently organized in one place.</p>
-//               </div>
-//             </a>
-//           </ElectricBorder>
-//           <ElectricBorder
-//             color="#7df9ff"
-//             speed={1}
-//             chaos={0.4}
-//             thickness={2}
-//             style={{ borderRadius: 16 }}
-//           >
-//             <a href="/resources">
-//               <div className="p-6 text-left">
-//                 <h2 className="text-2xl font-bold mb-2">Resources</h2>
-//                 <p className="text-gray-600 dark:text-gray-400">Access subject-wise study materials and documents to ace your academics.</p>
-//               </div>
-//             </a>
-//           </ElectricBorder>
-//            <ElectricBorder
-//             color="#7df9ff"
-//             speed={1}
-//             chaos={0.4}
-//             thickness={2}
-//             style={{ borderRadius: 16 }}
-//           >
-//             <a href="/placements">
-//               <div className="p-6 text-left">
-//                 <h2 className="text-2xl font-bold mb-2">Placements</h2>
-//                 <p className="text-gray-600 dark:text-gray-400">Stay updated with placement records, including company details and recruitment processes.</p>
-//               </div>
-//             </a>
-//           </ElectricBorder>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 "use client";
 
+import GradientText from "@/components/blocks/TextAnimations/GradientText/GradientText";
 import ElectricGridCard from "@/components/ElectricGridCard";
+import { Typewriter } from "@/components/ui/typewriter";
 
 export default function Home() {
   const cards = [
@@ -97,28 +36,50 @@ export default function Home() {
       description:
         "Explore the vibrant student community and discover a wide range of clubs. ",
     },
+    {
+      title: "About",
+      href: "/about",
+      description:
+        "Learn more about our mission, vision, and the team behind MITRA.",
+    },
   ];
 
   return (
     <div className="m-4">
       <div className="p-4 flex flex-col items-center justify-center text-center">
-        <h1 className="text-5xl font-extrabold mb-4 text-cyan-400">
-          Welcome to MITRA
+        <h1
+          className="text-5xl font-extrabold mb-4 text-center text-gray-800 dark:text-gray-100 font-['Poppins'] tracking-tight"
+        >
+          {/* <span className="inline-block align-middle mr-2" role="img" aria-label="books">📚</span> */}
+          Welcome to <span className="text-cyan-500">MITRA</span>
         </h1>
-        <p className="text-xl max-w-2xl mb-8 text-gray-700 dark:text-gray-300">
-          Your all-in-one companion for a seamless college experience. MITRA
-          provides easy access to all important college links, study materials,
-          and placement records.
+        <p
+          className="text-lg md:text-2xl max-w-2xl mb-10 text-gray-700 dark:text-gray-300 font-['Poppins'] leading-relaxed tracking-wide mx-auto text-center"
+        >
+          <Typewriter
+            text={DEMO_TEXT}
+            renderMarkdown
+            className="prose prose-lg dark:prose-invert font-['Poppins']"
+          />
         </p>
+
 
         {/* Dynamic grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mt-8">
           {cards.map((card, idx) => (
             <ElectricGridCard
               key={idx}
-              title={card.title}
+              title={
+                <span className="font-semibold text-xl font-['Poppins'] text-gray-800 dark:text-gray-100">
+                  {card.title}
+                </span>
+              }
               href={card.href}
-              description={card.description}
+              description={
+                <span className="text-base font-['Poppins'] text-gray-600 dark:text-gray-300">
+                  {card.description}
+                </span>
+              }
             />
           ))}
         </div>
@@ -126,3 +87,5 @@ export default function Home() {
     </div>
   );
 }
+
+const DEMO_TEXT = ` Your all-in-one companion for a seamless college experience.`;

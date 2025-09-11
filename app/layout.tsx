@@ -1,8 +1,8 @@
+// app/layout.tsx   (SERVER component — NO "use client" here)
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import Navbar from "@/components/Navbar";
+import RootClient from "@/components/RootClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,31 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {/* Navbar stays on top */}
-          <div className={"sticky top-0 z-50"} >
-            <Navbar />
-          </div>
-
-          {/* Scrollable content in middle */}
-          <main className={"flex-1 overflow-y-auto"}>
-            {children}
-          </main>
-
-          {/* Footer sticks at bottom */}
-          <footer className={"sticky bottom-0 z-50 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2"}>
-            <div className={"max-w-5xl mx-auto flex items-center justify-center"}>
-              <p className={"text-sm text-gray-500 dark:text-gray-400"}>
-                &copy; MITRA NSS KMIT {new Date().getFullYear()}
-              </p>
-            </div>
-          </footer>
-        </ThemeProvider>
+        {/* RootClient is a client component that wraps ThemeProvider, Navbar, Splash, etc. */}
+        <RootClient>{children}</RootClient>
       </body>
     </html>
   );

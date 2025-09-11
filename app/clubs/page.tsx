@@ -42,7 +42,7 @@ export default async function LinksPage() {
       <div className="max-w-md mx-auto">
 
       
-      <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-gray-100 tracking-tight font-['Playfair_Display'] italic">
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-gray-100 tracking-tight font-['Playfair_Display','serif'] italic">
         <GradientText
           colors={["#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa", "#40ffaa", "#4079ff", "#40ffaa", "#4079ff", "#40ffaa"]}
           animationSpeed={2}

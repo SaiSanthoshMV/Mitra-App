@@ -18,6 +18,7 @@ type Company = {
   name: string;
   offers: string;
   month: string;
+  stipend?: string | null; // <-- NEW: stipend field (optional)
   ctc: string;
   description: string;
   process: string;
@@ -42,7 +43,7 @@ const PDFViewer: React.FC<{ pdfUrl: string; onClose: () => void }> = ({
       <div className="relative w-full max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Document Viewer</h3>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Projector</h3>
           <Button
             variant="ghost"
             size="sm"
@@ -85,6 +86,7 @@ const PlacementPage: React.FC = () => {
             name,
             offers,
             month,
+            stipend, 
             ctc,
             description,
             process,
@@ -113,10 +115,12 @@ const PlacementPage: React.FC = () => {
   const filteredCompanies = useMemo(() => {
     if (!searchTerm) return companies;
     
+    const q = searchTerm.toLowerCase();
     return companies.filter(company => 
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.month.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.ctc.toLowerCase().includes(searchTerm.toLowerCase())
+      company.name.toLowerCase().includes(q) ||
+      company.month.toLowerCase().includes(q) ||
+      company.ctc.toLowerCase().includes(q) ||
+      (company.stipend ?? '').toString().toLowerCase().includes(q) // <-- include stipend in search
     );
   }, [searchTerm, companies]);
 
@@ -193,6 +197,7 @@ const PlacementPage: React.FC = () => {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">COMPANY NAME</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">OFFERS</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">MONTH</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">STIPEND</th> {/* <-- NEW header */}
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">CTC</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider w-12"></th>
                   </tr>
@@ -232,6 +237,16 @@ const PlacementPage: React.FC = () => {
                               {company.month}
                             </div>
                           </td>
+
+                          {/* NEW: stipend cell placed between month and ctc */}
+                          <td className="px-6 py-5">
+                            <div className="transition-transform duration-200 transform group-hover:translate-x-2">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                                {company.stipend && company.stipend.trim() !== '' ? company.stipend : '—'}
+                              </span>
+                            </div>
+                          </td>
+
                           <td className="px-6 py-5 font-semibold text-amber-600 dark:text-amber-400">
                             <div className="transition-transform duration-200 transform group-hover:translate-x-2">
                               {company.ctc}
@@ -248,7 +263,7 @@ const PlacementPage: React.FC = () => {
 
                         {isExpanded && (
                           <tr>
-                            <td colSpan={6} className="px-0 py-0">
+                            <td colSpan={7} className="px-0 py-0">
                               <div className="bg-slate-50 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-700">
                                 <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
                                   {/* Description */}

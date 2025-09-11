@@ -31,7 +31,7 @@ const PDFViewer: React.FC<{ pdfUrl: string; onClose: () => void }> = ({
       <div className="relative w-full max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Document Viewer</h3>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Projector</h3>
           <Button
             variant="ghost"
             size="sm"
@@ -267,34 +267,6 @@ const CompanyResourcesPage: React.FC = () => {
             isService={false}
             loading={loading}
           />
-
-          {/* Additional Information
-          <div className="mt-12 bg-gradient-to-r from-cyan-500/10 to-cyan-400/10 dark:from-cyan-400/10 dark:to-cyan-500/10 rounded-2xl p-6 border border-cyan-200 dark:border-cyan-900">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-cyan-500 dark:bg-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                <FileText className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  How to Use These Resources
-                </h3>
-                <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-500 dark:text-cyan-400 mt-1">•</span>
-                    <span><strong className="text-slate-900 dark:text-white">Service Based Companies:</strong> Click on any card to open resources in a new tab</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-500 dark:text-cyan-400 mt-1">•</span>
-                    <span><strong className="text-slate-900 dark:text-white">Product Based Companies:</strong> Click to view resources in the built-in PDF viewer</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-500 dark:text-cyan-400 mt-1">•</span>
-                    <span>All materials are regularly updated with the latest placement resources</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
 
