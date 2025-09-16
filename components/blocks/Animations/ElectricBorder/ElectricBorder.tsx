@@ -1,6 +1,5 @@
-/*
-	Installed from https://reactbits.dev/ts/tailwind/
-*/
+// components/blocks/Animations/ElectricBorder/ElectricBorder.tsx
+"use client";
 
 import React, {
   CSSProperties,
@@ -9,6 +8,7 @@ import React, {
   useId,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 
 type ElectricBorderProps = PropsWithChildren<{
@@ -18,6 +18,8 @@ type ElectricBorderProps = PropsWithChildren<{
   thickness?: number;
   className?: string;
   style?: CSSProperties;
+  // optional override if you want to always force-disable animations
+  forceDisable?: boolean;
 }>;
 
 function hexToRgba(hex: string, alpha = 1): string {
@@ -44,94 +46,63 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
   thickness = 2,
   className,
   style,
+  forceDisable = false,
 }) => {
   const rawId = useId().replace(/[:]/g, "");
   const filterId = `turbulent-displace-${rawId}`;
+
   const svgRef = useRef<SVGSVGElement | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const strokeRef = useRef<HTMLDivElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const updateAnim = () => {
-    const svg = svgRef.current;
-    const host = rootRef.current;
-    if (!svg || !host) return;
-
-    if (strokeRef.current) {
-      strokeRef.current.style.filter = `url(#${filterId})`;
-    }
-
-    const width = Math.max(
-      1,
-      Math.round(host.clientWidth || host.getBoundingClientRect().width || 0),
-    );
-    const height = Math.max(
-      1,
-      Math.round(host.clientHeight || host.getBoundingClientRect().height || 0),
-    );
-
-    const dyAnims = Array.from(
-      svg.querySelectorAll<SVGAnimateElement>(
-        'feOffset > animate[attributeName="dy"]',
-      ),
-    );
-    if (dyAnims.length >= 2) {
-      dyAnims[0].setAttribute("values", `${height}; 0`);
-      dyAnims[1].setAttribute("values", `0; -${height}`);
-    }
-
-    const dxAnims = Array.from(
-      svg.querySelectorAll<SVGAnimateElement>(
-        'feOffset > animate[attributeName="dx"]',
-      ),
-    );
-    if (dxAnims.length >= 2) {
-      dxAnims[0].setAttribute("values", `${width}; 0`);
-      dxAnims[1].setAttribute("values", `0; -${width}`);
-    }
-
-    const baseDur = 6;
-    const dur = Math.max(0.001, baseDur / (speed || 1));
-    [...dyAnims, ...dxAnims].forEach((a) => a.setAttribute("dur", `${dur}s`));
-
-    const disp = svg.querySelector("feDisplacementMap");
-    if (disp) disp.setAttribute("scale", String(30 * (chaos || 1)));
-
-    const filterEl = svg.querySelector<SVGFilterElement>(
-      `#${CSS.escape(filterId)}`,
-    );
-    if (filterEl) {
-      filterEl.setAttribute("x", "-200%");
-      filterEl.setAttribute("y", "-200%");
-      filterEl.setAttribute("width", "500%");
-      filterEl.setAttribute("height", "500%");
-    }
-
-    requestAnimationFrame(() => {
-      [...dyAnims, ...dxAnims].forEach((a) => {
-        const anim = a as SVGAnimateElement & { beginElement?: () => void };
-        if (typeof anim.beginElement === "function") {
-          try {
-            anim.beginElement();
-          } catch {}
-        }
-      });
-    });
-
-
-  };
-
+  // detect mobile (<= 768px) and reduced-motion preference
   useEffect(() => {
-    updateAnim();
-  }, [speed, chaos]);
+    if (typeof window === "undefined") return;
 
-  useLayoutEffect(() => {
-    if (!rootRef.current) return;
-    const ro = new ResizeObserver(() => updateAnim());
-    ro.observe(rootRef.current);
-    updateAnim();
-    return () => ro.disconnect();
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
+      setIsMobile(Boolean(e.matches));
+    try {
+      mq.addEventListener("change", onChange as EventListener);
+    } catch {
+      // older browsers
+      // @ts-ignore
+      mq.addListener(onChange);
+    }
+    setIsMobile(Boolean(mq.matches));
+
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onRMChange = (e: MediaQueryListEvent | MediaQueryList) =>
+      setPrefersReducedMotion(Boolean(e.matches));
+    try {
+      rm.addEventListener("change", onRMChange as EventListener);
+    } catch {
+      // @ts-ignore
+      rm.addListener(onRMChange);
+    }
+    setPrefersReducedMotion(Boolean(rm.matches));
+
+    return () => {
+      try {
+        mq.removeEventListener("change", onChange as EventListener);
+      } catch {
+        // @ts-ignore
+        mq.removeListener(onChange);
+      }
+      try {
+        rm.removeEventListener("change", onRMChange as EventListener);
+      } catch {
+        // @ts-ignore
+        rm.removeListener(onRMChange);
+      }
+    };
   }, []);
 
+  const shouldAnimate = !(isMobile || prefersReducedMotion || forceDisable);
+
+  // Styles reused
   const inheritRadius: CSSProperties = {
     borderRadius: style?.borderRadius ?? "inherit",
   };
@@ -170,12 +141,113 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     background: `linear-gradient(-30deg, ${hexToRgba(color, 0.8)}, transparent, ${color})`,
   };
 
+  // updateAnim only used when animations are enabled (desktop)
+  const updateAnim = () => {
+    if (!shouldAnimate) return;
+    const svg = svgRef.current;
+    const host = rootRef.current;
+    if (!svg || !host) return;
+
+    if (strokeRef.current) {
+      // apply filter to strokeRef only when svg exist
+      strokeRef.current.style.filter = `url(#${filterId})`;
+    }
+
+    const width = Math.max(
+      1,
+      Math.round(host.clientWidth || host.getBoundingClientRect().width || 0),
+    );
+    const height = Math.max(
+      1,
+      Math.round(host.clientHeight || host.getBoundingClientRect().height || 0),
+    );
+
+    const dyAnims = Array.from(
+      svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dy"]'),
+    );
+    if (dyAnims.length >= 2) {
+      dyAnims[0].setAttribute("values", `${height}; 0`);
+      dyAnims[1].setAttribute("values", `0; -${height}`);
+    }
+
+    const dxAnims = Array.from(
+      svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dx"]'),
+    );
+    if (dxAnims.length >= 2) {
+      dxAnims[0].setAttribute("values", `${width}; 0`);
+      dxAnims[1].setAttribute("values", `0; -${width}`);
+    }
+
+    const baseDur = 6;
+    const dur = Math.max(0.001, baseDur / (speed || 1));
+    [...dyAnims, ...dxAnims].forEach((a) => a.setAttribute("dur", `${dur}s`));
+
+    const disp = svg.querySelector("feDisplacementMap");
+    if (disp) disp.setAttribute("scale", String(30 * (chaos || 1)));
+
+    const filterEl = svg.querySelector<SVGFilterElement>(`#${CSS.escape(filterId)}`);
+    if (filterEl) {
+      filterEl.setAttribute("x", "-200%");
+      filterEl.setAttribute("y", "-200%");
+      filterEl.setAttribute("width", "500%");
+      filterEl.setAttribute("height", "500%");
+    }
+
+    // restart animations safely
+    requestAnimationFrame(() => {
+      [...dyAnims, ...dxAnims].forEach((a) => {
+        const anim = a as SVGAnimateElement & { beginElement?: () => void };
+        if (typeof anim.beginElement === "function") {
+          try {
+            anim.beginElement();
+          } catch {}
+        }
+      });
+    });
+  };
+
+  // only attach ResizeObserver when animations are enabled
+  useLayoutEffect(() => {
+    if (!shouldAnimate) return;
+    if (!rootRef.current) return;
+    const ro = new ResizeObserver(() => {
+      // throttle updateAnim a bit
+      updateAnim();
+    });
+    ro.observe(rootRef.current);
+    updateAnim();
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldAnimate, speed, chaos]);
+
+  // If animations disabled: render a lightweight fallback (cheap CSS border + subtle shadow)
+  if (!shouldAnimate) {
+    return (
+      <div ref={rootRef} className={"relative isolate " + (className ?? "")} style={style}>
+        <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
+          <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
+          {/* subtle non-GPU heavy glow (no filters) */}
+          <div
+            className="absolute inset-0 box-border"
+            style={{
+              ...glow1Style,
+              filter: "none",
+              opacity: 0.18,
+              // remove expensive blur on cheap devices
+            }}
+          />
+        </div>
+
+        <div className="relative" style={inheritRadius}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  // Normal (animated) rendering for non-mobile devices
   return (
-    <div
-      ref={rootRef}
-      className={"relative isolate " + (className ?? "")}
-      style={style}
-    >
+    <div ref={rootRef} className={"relative isolate " + (className ?? "")} style={style}>
       <svg
         ref={svgRef}
         className="fixed -left-[10000px] -top-[10000px] w-[10px] h-[10px] opacity-[0.001] pointer-events-none"
@@ -191,102 +263,37 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
             width="140%"
             height="140%"
           >
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise1"
-              seed="1"
-            />
+            {/* Reduced complexity for performance (numOctaves lowered) */}
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise1" seed="1" />
             <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
-              <animate
-                attributeName="dy"
-                values="700; 0"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
+              <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
             </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise2"
-              seed="1"
-            />
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise2" seed="1" />
             <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
-              <animate
-                attributeName="dy"
-                values="0; -700"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
+              <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
             </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise1"
-              seed="2"
-            />
-            <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
-              <animate
-                attributeName="dx"
-                values="490; 0"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise3" seed="2" />
+            <feOffset in="noise3" dx="0" dy="0" result="offsetNoise3">
+              <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
             </feOffset>
 
-            <feTurbulence
-              type="turbulence"
-              baseFrequency="0.02"
-              numOctaves="10"
-              result="noise2"
-              seed="2"
-            />
-            <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
-              <animate
-                attributeName="dx"
-                values="0; -490"
-                dur="6s"
-                repeatCount="indefinite"
-                calcMode="linear"
-              />
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="2" result="noise4" seed="2" />
+            <feOffset in="noise4" dx="0" dy="0" result="offsetNoise4">
+              <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
             </feOffset>
 
             <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
             <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
-            <feBlend
-              in="part1"
-              in2="part2"
-              mode="color-dodge"
-              result="combinedNoise"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="combinedNoise"
-              scale="30"
-              xChannelSelector="R"
-              yChannelSelector="B"
-            />
+            <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
+            <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale="30" xChannelSelector="R" yChannelSelector="B" />
           </filter>
         </defs>
       </svg>
 
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={inheritRadius}
-      >
-        <div
-          ref={strokeRef}
-          className="absolute inset-0 box-border"
-          style={strokeStyle}
-        />
+      <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
+        <div ref={strokeRef} className="absolute inset-0 box-border" style={strokeStyle} />
         <div className="absolute inset-0 box-border" style={glow1Style} />
         <div className="absolute inset-0 box-border" style={glow2Style} />
         <div className="absolute inset-0" style={bgGlowStyle} />
