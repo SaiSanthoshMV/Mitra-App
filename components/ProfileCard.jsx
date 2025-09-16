@@ -1,3 +1,5 @@
+// components/ProfileCard.jsx
+
 import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import './ProfileCard.css';
 

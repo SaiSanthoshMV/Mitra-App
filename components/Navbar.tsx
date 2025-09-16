@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { Home, Link, BookOpen, GraduationCap, Building2, Users, Info } from "lucide-react"
+import { Home, Link as LinkIcon, BookOpen, GraduationCap, Building2, Users, Info } from "lucide-react"
 import Logo from "@/components/nav/logo"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -12,10 +13,11 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { AnimatedThemeToggler } from "./magicui/animated-theme-toggler"
+import Image from "next/image"
 
 const navigationLinks = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/links", label: "Links", icon: Link },
+  { href: "/links", label: "Links", icon: LinkIcon },
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/placements", label: "Placements", icon: GraduationCap },
   { href: "/company", label: "Company", icon: Building2 },
@@ -83,9 +85,9 @@ export default function Component() {
 
             {/* Desktop nav with icons */}
             <div className="flex items-center gap-6">
-              <a href="/" className="text-primary hover:text-primary/90 relative z-50">
+              <Link href="/" className="text-primary hover:text-primary/90 relative z-50 rounded-full">
                 <Logo />
-              </a>
+              </Link>
               <NavigationMenu className="h-full *:h-full max-md:hidden">
                 <NavigationMenuList className="h-full gap-1">
                   {navigationLinks.map((link) => {

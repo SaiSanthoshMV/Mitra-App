@@ -107,14 +107,17 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     }
 
     requestAnimationFrame(() => {
-      [...dyAnims, ...dxAnims].forEach((a: any) => {
-        if (typeof a.beginElement === "function") {
+      [...dyAnims, ...dxAnims].forEach((a) => {
+        const anim = a as SVGAnimateElement & { beginElement?: () => void };
+        if (typeof anim.beginElement === "function") {
           try {
-            a.beginElement();
+            anim.beginElement();
           } catch {}
         }
       });
     });
+
+
   };
 
   useEffect(() => {

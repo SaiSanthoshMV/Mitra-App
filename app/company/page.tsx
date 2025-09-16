@@ -1,236 +1,85 @@
-'use client';
+// app/company/page.tsx
 
-import React, { useState, useEffect } from 'react';
-import { FileText, Building2, Package, Briefcase, X, ExternalLink, Loader2 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { createServerSupabase } from '@/lib/supabaseServer';
+import type { Metadata } from 'next';
+import NSSWatermark from '@/components/NSSWatermark';
+
+export const revalidate = 86400; // 24 hours ISR (adjust if you update resources frequently)
+
+export const metadata: Metadata = {
+  title: 'Company Resources • Mitra — NSS KMIT',
+  description: 'Service- and product-based placement materials and company resources for KMIT students.',
+};
+
+type RawResource = {
+  id: number | string;
+  title?: string | null;
+  url?: string | null;
+  category?: string | null;
+  description?: string | null;
+};
 
 type Resource = {
-  id: number;
+  id: string;
   title: string;
   url: string;
-  category: string;
-  description: string;
+  category: 'service' | 'product' | 'other';
+  description?: string;
 };
 
-// PDF Viewer Component (reused from placements page)
-const PDFViewer: React.FC<{ pdfUrl: string; onClose: () => void }> = ({
-  pdfUrl,
-  onClose,
-}) => {
-  const getEmbeddableUrl = (url: string): string => {
-    if (url.includes("drive.google.com")) {
-      const fileId = url.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    }
-    return url;
-  };
+// client component loaded dynamically (client-only)
+import CompanyClient from './CompanyClient';
+import { Building2 } from 'lucide-react';
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative w-full max-w-6xl h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Projector</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-        
-        {/* PDF Content */}
-        <div className="w-full h-[calc(100%-4rem)] bg-white dark:bg-slate-900">
-          <iframe
-            src={getEmbeddableUrl(pdfUrl)}
-            className="w-full h-full border-0"
-            title="PDF Viewer"
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+export default async function Page():  Promise<React.JSX.Element>  {
+  const supabase = createServerSupabase();
 
-// Company Card Component
-const CompanyCard: React.FC<{ 
-  resource: Resource; 
-  onOpen: (url: string) => void;
-  isService: boolean;
-}> = ({ resource, onOpen, isService }) => {
-  const handleClick = () => {
-    if (isService) {
-      // Open service companies in new tab
-      window.open(resource.url, '_blank', 'noopener,noreferrer');
-    } else {
-      // Open product companies in PDF viewer
-      onOpen(resource.url);
-    }
-  };
+  try {
+    // fetch resources server-side; limit protects against huge responses
+    const { data, error } = await supabase
+      .from('links')
+      .select('id,title,url,category,description')
+      .order('title', { ascending: true })
+      .limit(1000);
 
-  return (
-    <div 
-      onClick={handleClick}
-      className="group relative bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 hover:shadow-xl dark:hover:shadow-2xl hover:shadow-cyan-500/10 dark:hover:shadow-cyan-400/10 transition-all duration-300 cursor-pointer hover:-translate-y-1"
-    >
-      {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent dark:from-cyan-400/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-      
-      <div className="relative flex items-center gap-4">
-        {/* Icon Container */}
-        <div className="flex-shrink-0">
-          <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-cyan-400/50 transition-all duration-300 group-hover:scale-110">
-            <FileText className="w-6 h-6 text-white" />
-          </div>
-        </div>
-        
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-200 flex items-center gap-2">
-            {resource.title}
-            {isService && (
-              <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            )}
-          </h3>
-          {resource.description && (
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
-              {resource.description}
+    if (error) {
+      console.error('Supabase (company resources) error:', error);
+      return (
+        <main className="min-h-screen p-6 relative">
+          <NSSWatermark variant="minimal" />
+          <div className="max-w-7xl mx-auto relative z-10">
+            <h1 className="text-2xl font-semibold text-red-600">Unable to load company resources</h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              There was an issue fetching resources. Please try again later.
             </p>
-          )}
-        </div>
-      </div>
-      
-      {/* Hover indicator */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-b-xl" />
-    </div>
-  );
-};
+          </div>
+        </main>
+      );
+    }
 
-// Section Component
-const ResourceSection: React.FC<{
-  title: string;
-  icon: React.ReactNode;
-  resources: Resource[];
-  onOpenPdf: (url: string) => void;
-  isService: boolean;
-  loading: boolean;
-}> = ({ title, icon, resources, onOpenPdf, isService, loading }) => {
-  if (loading) {
+    const rows: RawResource[] = Array.isArray(data) ? data : [];
+
+    // normalize and categorize
+    const normalized: Resource[] = rows.map((r) => {
+      const cat = (r.category ?? '').toString().trim().toLowerCase();
+      return {
+        id: String(r.id ?? Math.random().toString(36).slice(2, 9)),
+        title: (r.title ?? '').trim() || 'Untitled',
+        url: (r.url ?? '').trim() || '',
+        category: cat === 'service' ? 'service' : cat === 'product' ? 'product' : 'other',
+        description: r.description ?? undefined,
+      };
+    });
+
+    // split lists server-side
+    const serviceResources = normalized.filter((r) => r.category === 'service');
+    const productResources = normalized.filter((r) => r.category === 'product');
+
     return (
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-lg flex items-center justify-center animate-pulse">
-            {icon}
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h2>
-        </div>
-        <div className="bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (resources.length === 0) {
-    return (
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-lg flex items-center justify-center">
-            {icon}
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h2>
-        </div>
-        <div className="bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
-          <p className="text-center text-slate-500 dark:text-slate-400">No resources available</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mb-12">
-      {/* Section Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg">
-          {icon}
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h2>
-      </div>
-
-      {/* Resources Container */}
-      <div className="bg-white/50 dark:bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-slate-200 dark:border-slate-700 shadow-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {resources.map((resource) => (
-            <CompanyCard 
-              key={resource.id} 
-              resource={resource} 
-              onOpen={onOpenPdf}
-              isService={isService}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CompanyResourcesPage: React.FC = () => {
-  const [serviceResources, setServiceResources] = useState<Resource[]>([]);
-  const [productResources, setProductResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch all resources
-        const { data, error } = await supabase
-          .from("links")
-          .select("*")
-          .order("title", { ascending: true });
-
-        if (error) {
-          console.error("Error fetching resources:", error);
-          return;
-        }
-
-        if (data) {
-          // Filter resources by category
-          const service = data.filter(r => r.category?.toLowerCase() === 'service');
-          const product = data.filter(r => r.category?.toLowerCase() === 'product');
-          
-          setServiceResources(service);
-          setProductResources(product);
-        }
-      } catch (error) {
-        console.error("Error fetching resources:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResources();
-  }, []);
-
-  const openPdfViewer = (url: string) => {
-    setSelectedPdfUrl(url);
-  };
-
-  const closePdfViewer = () => {
-    setSelectedPdfUrl(null);
-  };
-
-  return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4 md:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4 md:p-6 lg:p-8 relative">
+        <NSSWatermark variant="default" />
+        <div className="max-w-7xl mx-auto relative z-10">
           {/* Page Header */}
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-4">
@@ -248,37 +97,24 @@ const CompanyResourcesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Service Based Section */}
-          <ResourceSection
-            title="Service Based"
-            icon={<Briefcase className="w-6 h-6 text-white" />}
-            resources={serviceResources}
-            onOpenPdf={openPdfViewer}
-            isService={true}
-            loading={loading}
-          />
-
-          {/* Product Based Section */}
-          <ResourceSection
-            title="Product Based"
-            icon={<Package className="w-6 h-6 text-white" />}
-            resources={productResources}
-            onOpenPdf={openPdfViewer}
-            isService={false}
-            loading={loading}
+          {/* Hydrate the interactive client component (small initial payload server-side) */}
+          <CompanyClient
+            serviceResources={serviceResources}
+            productResources={productResources}
           />
         </div>
-      </div>
-
-      {/* PDF Viewer Modal */}
-      {selectedPdfUrl && (
-        <PDFViewer 
-          pdfUrl={selectedPdfUrl} 
-          onClose={closePdfViewer} 
-        />
-      )}
-    </>
-  );
-};
-
-export default CompanyResourcesPage;
+      </main>
+    );
+  } catch (err) {
+    console.error('Unexpected error in company page:', err);
+    return (
+      <main className="min-h-screen p-6 relative">
+        <NSSWatermark variant="minimal" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <h1 className="text-2xl font-semibold text-red-600">Something went wrong</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Try again in a few minutes.</p>
+        </div>
+      </main>
+    );
+  }
+}

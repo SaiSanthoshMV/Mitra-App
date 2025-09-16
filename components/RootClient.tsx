@@ -1,19 +1,58 @@
 // components/RootClient.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import Splash from "@/components/Splash";
+import { InstagramIcon } from "lucide-react";
+import DeveloperIconButton from "./DeveloperIconButton";
+import Link from "next/link";
 
-export default function RootClient({ children }: { children: React.ReactNode }) {
-  const [showSplash, setShowSplash] = useState<boolean>(true);
+const INSTAGRAM_URL = "https://www.instagram.com/nss.kmit/" as const;
+const SPLASH_TIMEOUT = 1000 as const;
+
+// Memoized Footer component to prevent unnecessary re-renders
+const Footer = memo(() => {
+  const currentYear = new Date().getFullYear();
+  
+  return (
+    <footer className="fixed inset-x-0 bottom-0 z-50 h-[0.7cm] border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <div className="max-w-5xl mx-auto flex items-center justify-center gap-4 h-full">
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mr-4 inline-flex items-center justify-center p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-cyan-400 dark:hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 transition-colors duration-150"
+          aria-label="NSS KMIT Instagram"
+        >
+          <InstagramIcon className="w-5 h-5" />
+        </a>
+        <Link 
+          href="/about"
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-cyan-400 dark:hover:text-cyan-300 transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 rounded px-1"
+        >
+          &copy; MITRA NSS KMIT {currentYear}
+        </Link>
+        <DeveloperIconButton className="ml-4" />
+      </div>
+    </footer>
+  );
+});
+
+Footer.displayName = 'Footer';
+
+function RootClient({ children }: { children: React.ReactNode }) {
+  const [showSplash, setShowSplash] = useState(true);
+
+  const hideSplash = useCallback(() => {
+    setShowSplash(false);
+  }, []);
 
   useEffect(() => {
-    // fallback to hide splash no matter what after ~2.2s
-    const t = setTimeout(() => setShowSplash(false), 1200);
-    return () => clearTimeout(t);
-  }, []);
+    const timeoutId = setTimeout(hideSplash, SPLASH_TIMEOUT);
+    return () => clearTimeout(timeoutId);
+  }, [hideSplash]);
 
   return (
     <ThemeProvider
@@ -22,27 +61,17 @@ export default function RootClient({ children }: { children: React.ReactNode }) 
       enableSystem
       disableTransitionOnChange
     >
-      {/* Navbar */}
       <div className="sticky top-0 z-50">
         <Navbar />
       </div>
 
-      {/* Splash screen shown on first load */}
-      {showSplash ? (
-        <Splash mode="splash" onFinish={() => setShowSplash(false)} />
-      ) : null}
+      {showSplash && <Splash mode="splash" onFinish={hideSplash} />}
 
-      {/* Scrollable content */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-[0.7cm]">{children}</main>
 
-      {/* Footer */}
-      <footer className="sticky bottom-0 z-50 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2">
-        <div className="max-w-5xl mx-auto flex items-center justify-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            &copy; MITRA NSS KMIT {new Date().getFullYear()}
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </ThemeProvider>
   );
 }
+
+export default memo(RootClient);
