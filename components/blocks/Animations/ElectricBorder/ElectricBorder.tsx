@@ -67,8 +67,6 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     try {
       mq.addEventListener("change", onChange as EventListener);
     } catch {
-      // older browsers
-      // @ts-ignore
       mq.addListener(onChange);
     }
     setIsMobile(Boolean(mq.matches));
@@ -79,7 +77,6 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     try {
       rm.addEventListener("change", onRMChange as EventListener);
     } catch {
-      // @ts-ignore
       rm.addListener(onRMChange);
     }
     setPrefersReducedMotion(Boolean(rm.matches));
@@ -88,13 +85,11 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       try {
         mq.removeEventListener("change", onChange as EventListener);
       } catch {
-        // @ts-ignore
         mq.removeListener(onChange);
       }
       try {
         rm.removeEventListener("change", onRMChange as EventListener);
       } catch {
-        // @ts-ignore
         rm.removeListener(onRMChange);
       }
     };
