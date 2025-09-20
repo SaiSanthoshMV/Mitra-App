@@ -36,7 +36,8 @@ type Company = {
 import PlacementClient from './PlacementClient';
 import { Building2 } from 'lucide-react';
 import NSSWatermarkSmall from '@/components/NSSWatermarkSmall';
-export default async function Page():  Promise<React.JSX.Element>  {
+import ReloadPage from '@/components/ReloadPage';
+export default async function Page(): Promise<React.JSX.Element> {
   const supabase = createServerSupabase();
 
   try {
@@ -53,12 +54,7 @@ export default async function Page():  Promise<React.JSX.Element>  {
       return (
         <main className="min-h-screen p-6 relative">
           <NSSWatermark variant="minimal" />
-          <div className="max-w-6xl mx-auto relative z-10">
-            <h1 className="text-2xl font-semibold text-red-600">Unable to load placement records</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              There was an issue fetching placement data. Try again later.
-            </p>
-          </div>
+          <ReloadPage />
         </main>
       );
     }
@@ -76,11 +72,11 @@ export default async function Page():  Promise<React.JSX.Element>  {
       process: (c.process ?? '') as string,
       company_documents: Array.isArray(c.company_documents)
         ? c.company_documents.map((d): CompanyDocument => ({
-            id: d.id as number,
-            title: (d.title ?? '') as string,
-            url: (d.url ?? '') as string,
-            company_id: d.company_id as number,
-          }))
+          id: d.id as number,
+          title: (d.title ?? '') as string,
+          url: (d.url ?? '') as string,
+          company_id: d.company_id as number,
+        }))
         : [],
     }));
 

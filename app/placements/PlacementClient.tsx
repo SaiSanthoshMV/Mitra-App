@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Search, ChevronDown, FileText, Building2 } from 'lucide-react';
+import { Search, ChevronDown, FileText, Building2, TriangleAlert } from 'lucide-react';
 import PDFViewer from '@/components/PDFViewer';
 import { usePDFViewer } from '@/hooks/usePDFViewer';
 
@@ -86,7 +86,7 @@ export default function PlacementClient({ initialCompanies = [] }: { initialComp
         {/* Table Container */}
         <div className="bg-white dark:bg-slate-900/50 rounded-2xl overflow-hidden shadow-xl dark:shadow-2xl border border-slate-200 dark:border-slate-800">
           <div className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800/80 dark:to-slate-700/80 px-6 py-5 border-b border-slate-200 dark:border-slate-700">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Campus Placement Records</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Campus Placement Records (2025-26)</h2>
           </div>
 
           <div className="overflow-x-auto">
@@ -243,6 +243,12 @@ export default function PlacementClient({ initialCompanies = [] }: { initialComp
               </tbody>
             </table>
           </div>
+        </div>
+        <div className="mt-8 flex items-start gap-3 p-4 rounded-xl border border-amber-300/40 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/30">
+          <TriangleAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+            These Placement Records may not be accurate and are only intended to make students aware of different company recruitments.
+          </p>
         </div>
       </div>
 

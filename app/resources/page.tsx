@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import NSSWatermark from '@/components/NSSWatermark';
 import ResourcesClient from './ResourcesClient';
 import NSSWatermarkSmall from '@/components/NSSWatermarkSmall';
+import ReloadPage from '@/components/ReloadPage';
 
 export const revalidate = 86400; // 24 hours ISR
 
@@ -48,36 +49,31 @@ export default async function Page(): Promise<React.JSX.Element> {
       return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
           <NSSWatermark variant="default" />
-          <div className="relative z-10 py-6 px-4 max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">📚 Study Materials</h1>
-            <div className="rounded-lg p-6 bg-card border text-sm text-red-600">
-              Could not load resources right now. Please try again later.
-            </div>
-          </div>
+          <ReloadPage />
         </main>
       );
     }
 
     const documents: DocumentItem[] = Array.isArray(documentsData)
       ? documentsData.map(
-          (d): DocumentItem => ({
-            id: d.id as string | number,
-            title: (d.title ?? 'Untitled') as string,
-            pdf_url: (d.pdf_url ?? '') as string,
-            category: (d.category ?? null) as number | string | null,
-            subject_id: (d.subject_id ?? null) as number | string | null,
-          })
-        )
+        (d): DocumentItem => ({
+          id: d.id as string | number,
+          title: (d.title ?? 'Untitled') as string,
+          pdf_url: (d.pdf_url ?? '') as string,
+          category: (d.category ?? null) as number | string | null,
+          subject_id: (d.subject_id ?? null) as number | string | null,
+        })
+      )
       : [];
 
     const subjects: Subject[] = Array.isArray(subjectsData)
       ? subjectsData.map(
-          (s): Subject => ({
-            id: s.id as string | number,
-            name: (s.name ?? 'Untitled') as string,
-            documents: documents.filter((d) => String(d.subject_id ?? '') === String(s.id ?? '')),
-          })
-        )
+        (s): Subject => ({
+          id: s.id as string | number,
+          name: (s.name ?? 'Untitled') as string,
+          documents: documents.filter((d) => String(d.subject_id ?? '') === String(s.id ?? '')),
+        })
+      )
       : [];
 
     return (
