@@ -29,6 +29,7 @@ type PasswordInfo = {
 
 // load client component dynamically to avoid shipping interactive code server-side
 import LinksPageClient from './LinksPageClient';
+import ReloadPage from '@/components/ReloadPage';
 export default async function LinksPageServer(): Promise<React.JSX.Element> {
   const supabase = createServerSupabase();
 
@@ -50,15 +51,8 @@ export default async function LinksPageServer(): Promise<React.JSX.Element> {
         <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
           {/* NSS Watermark Background */}
           <NSSWatermark variant="default" />
-          
-          <div className="relative z-10 px-6 py-8">
-            <div className="max-w-md mx-auto">
-              <h1 className="text-2xl font-semibold text-red-600">Failed to load resources</h1>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                There was an issue fetching links or password info. Please try again later.
-              </p>
-            </div>
-          </div>
+
+          <ReloadPage />
         </main>
       );
     }
@@ -74,7 +68,7 @@ export default async function LinksPageServer(): Promise<React.JSX.Element> {
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
         {/* NSS Watermark Background */}
         <NSSWatermark variant="default" />
-        
+
         <div className="relative z-10 px-6 py-8">
           <div className="max-w-md mx-auto">
             <h1 className="text-2xl font-semibold text-red-600">Something went wrong</h1>
