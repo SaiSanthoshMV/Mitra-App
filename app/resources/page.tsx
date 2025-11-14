@@ -4,6 +4,7 @@ import React from 'react';
 import { createServerSupabase } from '@/lib/supabaseServer';
 import type { Metadata } from 'next';
 import NSSWatermark from '@/components/NSSWatermark';
+import { BookOpen } from 'lucide-react';
 import ResourcesClient from './ResourcesClient';
 import NSSWatermarkSmall from '@/components/NSSWatermarkSmall';
 import ReloadPage from '@/components/ReloadPage';
@@ -80,7 +81,12 @@ export default async function Page(): Promise<React.JSX.Element> {
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
         <NSSWatermarkSmall variant="default" />
         <div className="relative z-10 py-6 px-4 max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">📚 Study Materials</h1>
+          <header className="flex items-center gap-4 mb-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-md">
+              <BookOpen className="w-6 h-6 text-white" aria-hidden />
+            </div>
+            <h1 className="text-2xl font-semibold text-white">Placement Resources</h1>
+          </header>
           <ResourcesClient initialSubjects={subjects} />
         </div>
       </main>
@@ -91,7 +97,12 @@ export default async function Page(): Promise<React.JSX.Element> {
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
         <NSSWatermark variant="default" />
         <div className="relative z-10 py-6 px-4 max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">📚 Study Materials</h1>
+          <header className="flex items-center gap-4 mb-6">
+            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-md">
+              <BookOpen className="w-6 h-6 text-white" aria-hidden />
+            </div>
+            <h1 className="text-2xl font-semibold text-white">Placement Resources</h1>
+          </header>
           <div className="rounded-lg p-6 bg-card border text-sm text-red-600">
             An unexpected error occurred.
           </div>
