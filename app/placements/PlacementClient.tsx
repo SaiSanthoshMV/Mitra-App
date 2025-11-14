@@ -145,7 +145,7 @@ export default function PlacementClient({ initialCompanies = [] }: { initialComp
                         </td>
 
                         <td className="px-6 py-5 font-semibold text-amber-600 dark:text-amber-400">
-                          <div className="transition-transform duration-200 transform group-hover:translate-x-2">{safeText(company.ctc)}</div>
+                          <div className="transition-transform duration-200 transform group-hover:translate-x-2">₹ {safeText(company.ctc)}</div>
                         </td>
 
                         <td className="px-6 py-5">

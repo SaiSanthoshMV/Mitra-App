@@ -32,10 +32,10 @@ SplashImage.displayName = "SplashImage";
 const SplashText = memo(({ textControls }: { textControls: ReturnType<typeof useAnimation> }) => (
   <motion.p
     animate={textControls}
-    className="mt-1 text-sm text-slate-200/90"
+    className="mt-1 text-sm"
     aria-hidden={false}
   >
-    Initiative by NSS KMIT
+    Initiative by <span className="font-semibold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">NSS KMIT</span>
   </motion.p>
 ));
 SplashText.displayName = "SplashText";
