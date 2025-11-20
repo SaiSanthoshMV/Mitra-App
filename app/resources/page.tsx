@@ -85,7 +85,7 @@ export default async function Page(): Promise<React.JSX.Element> {
             <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-md">
               <BookOpen className="w-6 h-6 text-white" aria-hidden />
             </div>
-            <h1 className="text-2xl font-semibold text-white">Placement Resources</h1>
+            <h1 className="text-2xl font-semibold ">Placement Resources</h1>
           </header>
           <ResourcesClient initialSubjects={subjects} />
         </div>
