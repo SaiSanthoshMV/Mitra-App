@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { uploadToR2 } from '@/lib/r2Client';
 import { createServerSupabase } from '@/lib/supabaseServer';
 

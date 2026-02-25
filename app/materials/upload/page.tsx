@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { createServerSupabase } from '@/lib/supabaseServer';
 import UploadClient from './UploadClient';
 import CollegeEmailVerification from '@/components/CollegeEmailVerification';
@@ -42,7 +42,7 @@ export default async function UploadPage() {
     if (error || !user) {
         console.log('User record not found, creating...');
 
-        const { data: newUser, error: createError } = await supabase
+        const { error: createError } = await supabase
             .from('users')
             .insert({
                 google_email: googleEmail,

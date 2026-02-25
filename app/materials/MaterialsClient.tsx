@@ -2,12 +2,11 @@
 
 'use client';
 
-import { Confetti, ConfettiButton } from '@/components/ui/confetti';
 import confetti from 'canvas-confetti';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FileText, Download, Eye, Filter, BookOpen, GraduationCap, User, ExternalLink, Upload, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -77,11 +76,14 @@ function MaterialCard({ material, onView }: { material: Material; onView: (url: 
                 {/* Preview Area */}
                 <div className="w-full h-40 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-lg flex items-center justify-center mb-3 overflow-hidden group-hover:scale-105 transition-transform duration-300">
                     {material.preview_url ? (
-                        <img
-                            src={material.preview_url}
-                            alt={`Preview of ${material.title}`}
-                            className="w-full h-full object-cover"
-                        />
+                        <div className="w-full h-full relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={material.preview_url}
+                                alt={`Preview of ${material.title}`}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
                     ) : (
                         <FileText className="w-16 h-16 text-slate-400 dark:text-slate-500" />
                     )}
@@ -147,7 +149,7 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
     const [showGiftDialog, setShowGiftDialog] = useState(false);
     const { pdfUrl, openPDF, closePDF } = usePDFViewer();
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
 
     // Handle upload button click
     const handleUploadClick = () => {
@@ -187,12 +189,6 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
             window.open(url, '_blank', 'noopener,noreferrer');
             setShowGiftDialog(false);
         }, 100);
-    };
-
-    // Handle successful login
-    const handleLoginSuccess = () => {
-        // Dialog will close and NextAuth will redirect
-        setShowLoginDialog(false);
     };
 
     // Get unique filter values
@@ -396,7 +392,6 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
             <LoginDialog
                 open={showLoginDialog}
                 onOpenChange={setShowLoginDialog}
-                onLoginSuccess={handleLoginSuccess}
             />
 
             {/* Gift Box Dialog */}

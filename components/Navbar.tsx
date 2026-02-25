@@ -13,7 +13,6 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { AnimatedThemeToggler } from "./magicui/animated-theme-toggler"
-import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 
 const navigationLinks = [
@@ -30,7 +29,7 @@ const navigationLinks = [
 export default function Component() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
 
   // Handle logout
   const handleLogout = async () => {

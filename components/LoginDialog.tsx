@@ -16,10 +16,9 @@ import { signIn } from 'next-auth/react';
 interface LoginDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onLoginSuccess?: () => void;
 }
 
-export default function LoginDialog({ open, onOpenChange, onLoginSuccess }: LoginDialogProps) {
+export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 

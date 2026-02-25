@@ -135,7 +135,7 @@ function DeveloperDialog({ open, onClose }: DeveloperDialogProps) {
 
     const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
     const focusableElements = Array.from(modalRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-    
+
     if (focusableElements.length === 0) return;
 
     const firstElement = focusableElements[0];
@@ -143,7 +143,7 @@ function DeveloperDialog({ open, onClose }: DeveloperDialogProps) {
 
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
-      
+
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
           e.preventDefault();
@@ -157,8 +157,9 @@ function DeveloperDialog({ open, onClose }: DeveloperDialogProps) {
       }
     };
 
-    modalRef.current.addEventListener("keydown", handleTabKey);
-    return () => modalRef.current?.removeEventListener("keydown", handleTabKey);
+    const currentModal = modalRef.current;
+    currentModal?.addEventListener("keydown", handleTabKey);
+    return () => currentModal?.removeEventListener("keydown", handleTabKey);
   }, [open]);
 
   return (
@@ -186,7 +187,7 @@ function DeveloperDialog({ open, onClose }: DeveloperDialogProps) {
             onClick={handleContentClick}
           >
             <CloseButton ref={closeBtnRef} onClose={onClose} />
-            
+
             <DialogHeader />
 
             <ProfileCardSection />

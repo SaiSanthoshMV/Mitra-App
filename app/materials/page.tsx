@@ -3,7 +3,6 @@
 import { Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import MaterialsClient from './MaterialsClient';
-import { Loader2 } from 'lucide-react';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

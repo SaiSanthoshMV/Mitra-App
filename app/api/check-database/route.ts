@@ -4,11 +4,17 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabase } from '@/lib/supabaseServer';
 
+interface CheckResult {
+    timestamp: string;
+    checks: Record<string, unknown>;
+    errors: string[];
+}
+
 export async function GET() {
     try {
         const supabase = createServerSupabase();
 
-        const results: any = {
+        const results: CheckResult = {
             timestamp: new Date().toISOString(),
             checks: {},
             errors: []
