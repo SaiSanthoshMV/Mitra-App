@@ -6,7 +6,7 @@ import RootClient from "@/components/RootClient";
 export const metadata: Metadata = {
   title: "Mitra KMIT",
   description: "Student Partner App",
-   icons: {
+  icons: {
     icon: "/favicon.ico",
   },
 };
