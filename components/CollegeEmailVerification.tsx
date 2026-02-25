@@ -53,27 +53,10 @@ export default function CollegeEmailVerification() {
                 throw new Error(data.error || 'Failed to send OTP');
             }
 
-            // In development, show OTP in UI for easy testing
-            if (data.otp) {
-                if (data.emailSent) {
-                    setVerificationStep({
-                        step: 'otp',
-                        message: `Email sent! Dev Mode: OTP is ${data.otp}`
-                    });
-                } else {
-                    setVerificationStep({
-                        step: 'otp',
-                        message: `Console Mode: Your OTP is ${data.otp}`
-                    });
-                }
-            } else {
-                setVerificationStep({
-                    step: 'otp',
-                    message: data.emailSent
-                        ? 'Verification code sent to your email!'
-                        : 'Check your terminal for the OTP!'
-                });
-            }
+            setVerificationStep({
+                step: 'otp',
+                message: 'Verification code sent to your email!'
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to send OTP. Please try again.');
         } finally {
@@ -155,14 +138,14 @@ export default function CollegeEmailVerification() {
                 <CardContent className="space-y-4">
                     {verificationStep.message && (
                         <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-lg">
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2">
                                 <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                 <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
                                     {verificationStep.message}
                                 </p>
                             </div>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                                💡 Also check your terminal/console for the OTP
+                                ⏰ The code will expire in 10 minutes. Check your inbox and spam folder.
                             </p>
                         </div>
                     )}

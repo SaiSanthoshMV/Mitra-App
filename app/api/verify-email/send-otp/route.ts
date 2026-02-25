@@ -4,17 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createServerSupabase } from '@/lib/supabaseServer';
-
-// Generate a random 6-digit OTP
-function generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: NextRequest) {
     try {
         console.log('🔵 Send OTP API called');
 
-        // Check if user is authenticated
+        // Check if user is authenticated via NextAuth (Google OAuth)
         const session = await getServerSession(authOptions);
 
         console.log('🔵 Session check:', {
@@ -24,7 +20,7 @@ export async function POST(request: NextRequest) {
 
         if (!session || !session.user?.email) {
             return NextResponse.json(
-                { error: 'Unauthorized. Please log in first.' },
+                { error: 'Unauthorized. Please log in with Google first.' },
                 { status: 401 }
             );
         }
@@ -51,11 +47,11 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if college email is already used by another user
-        const supabase = createServerSupabase();
+        const serverSupabase = createServerSupabase();
 
         console.log('🔵 Checking for existing user with college email...');
 
-        const { data: existingUser, error: existingUserError } = await supabase
+        const { data: existingUser, error: existingUserError } = await serverSupabase
             .from('users')
             .select('google_email')
             .eq('college_email', trimmedEmail)
@@ -74,147 +70,56 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Generate OTP
-        const otp = generateOTP();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+        console.log('🔵 Sending OTP via Supabase Auth...');
 
-        console.log('🔵 Generated OTP:', otp);
-        console.log('🔵 Storing OTP in database...');
+        // Send OTP via Supabase Auth - Force EMAIL OTP (6-digit code)
+        const { error } = await supabase.auth.signInWithOtp({
+            email: trimmedEmail,
+            options: {
+                shouldCreateUser: true,
+                // Don't set emailRedirectTo - this prevents magic link
+                data: {
+                    // Store metadata that this is for verification only
+                    verification_type: 'college_email',
+                    google_email: session.user.email,
+                }
+            },
+        });
 
-        // Store OTP in database
-        const { error: upsertError } = await supabase
+        if (error) {
+            console.error('❌ Supabase Auth OTP error:', error);
+            return NextResponse.json(
+                { error: 'Failed to send verification code. Please try again.' },
+                { status: 500 }
+            );
+        }
+
+        console.log('✅ OTP sent via Supabase Auth');
+
+        // Store verification attempt in our custom table for tracking
+        const { error: upsertError } = await serverSupabase
             .from('email_verifications')
             .upsert({
                 google_email: session.user.email,
                 college_email: trimmedEmail,
-                otp: otp,
-                expires_at: expiresAt.toISOString(),
+                otp: 'supabase_auth', // Placeholder - actual OTP managed by Supabase
+                expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour
                 verified: false,
             }, {
                 onConflict: 'google_email',
             });
 
         if (upsertError) {
-            console.error('❌ Error storing OTP:', upsertError);
-            console.error('❌ Full error details:', JSON.stringify(upsertError, null, 2));
-            return NextResponse.json(
-                { error: `Failed to generate verification code: ${upsertError.message || 'Database error'}` },
-                { status: 500 }
-            );
-        }
-
-        console.log('✅ OTP stored successfully');
-
-        // Send OTP via email using Resend
-        let emailSent = false;
-        let emailError = null;
-
-        try {
-            const resendApiKey = process.env.RESEND_API_KEY;
-            const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
-
-            if (resendApiKey) {
-                const response = await fetch('https://api.resend.com/emails', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${resendApiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        from: fromEmail,
-                        to: trimmedEmail,
-                        subject: 'Your KMIT Verification Code',
-                        html: `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <style>
-                                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                                    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                                    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                                    .otp-box { background: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
-                                    .otp-code { font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 8px; font-family: monospace; }
-                                    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="container">
-                                    <div class="header">
-                                        <h1>🔐 Email Verification</h1>
-                                        <p>KMIT Materials Platform</p>
-                                    </div>
-                                    <div class="content">
-                                        <h2>Hello!</h2>
-                                        <p>You requested a verification code to access the KMIT Materials upload feature.</p>
-                                        
-                                        <div class="otp-box">
-                                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Your verification code is:</p>
-                                            <div class="otp-code">${otp}</div>
-                                        </div>
-
-                                        <p><strong>⏰ This code will expire in 10 minutes.</strong></p>
-                                        
-                                        <p>If you didn't request this code, you can safely ignore this email.</p>
-                                        
-                                        <div class="footer">
-                                            <p>This is an automated message from KMIT Materials Platform</p>
-                                            <p>Please do not reply to this email</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </body>
-                            </html>
-                        `,
-                    }),
-                });
-
-                if (response.ok) {
-                    emailSent = true;
-                    console.log('✅ Email sent successfully via Resend');
-                } else {
-                    const errorData = await response.json();
-                    console.error('❌ Resend API error:', errorData);
-                    emailError = errorData;
-                }
-            } else {
-                console.log('⚠️ RESEND_API_KEY not configured - showing OTP in console');
-            }
-        } catch (err) {
-            console.error('❌ Error sending email:', err);
-            emailError = err;
-        }
-
-        // Fallback: Display OTP in terminal if email sending failed or not configured
-        if (!emailSent) {
-            console.log('\n' + '='.repeat(70));
-            console.log('🔐 VERIFICATION CODE (Email not sent - check console)');
-            console.log('='.repeat(70));
-            console.log(`📧 College Email: ${trimmedEmail}`);
-            console.log(`🔑 OTP Code: ${otp}`);
-            console.log(`⏰ Expires: ${expiresAt.toLocaleString()}`);
-            console.log(`⏱️  Valid for: 10 minutes`);
-            if (emailError) {
-                console.log(`⚠️  Email Error: ${emailError}`);
-            }
-            console.log('='.repeat(70) + '\n');
+            console.error('❌ Error storing verification record:', upsertError);
+            // Continue anyway - OTP was sent
         }
 
         console.log('✅ Send OTP completed successfully');
 
         return NextResponse.json({
             success: true,
-            message: emailSent
-                ? 'Verification code sent to your college email!'
-                : 'Verification code generated! Check your terminal for the OTP.',
-            emailSent,
-            // In development, include OTP in response for testing
-            ...(process.env.NODE_ENV === 'development' && {
-                otp,
-                dev_note: emailSent
-                    ? 'Email sent! OTP also shown here for testing'
-                    : 'Email not configured - OTP shown in terminal'
-            }),
+            message: 'Verification code sent to your college email!',
+            emailSent: true,
         });
 
     } catch (error) {

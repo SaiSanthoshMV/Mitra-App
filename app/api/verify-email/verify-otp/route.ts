@@ -4,10 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createServerSupabase } from '@/lib/supabaseServer';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: NextRequest) {
     try {
-        // Check if user is authenticated
+        // Check if user is authenticated via NextAuth
         const session = await getServerSession(authOptions);
 
         if (!session || !session.user?.email) {
@@ -37,64 +38,49 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify OTP from database
-        const supabase = createServerSupabase();
+        console.log('🔵 Verifying OTP via Supabase Auth...');
 
-        const { data: verification, error: fetchError } = await supabase
-            .from('email_verifications')
-            .select('*')
-            .eq('google_email', session.user.email)
-            .eq('college_email', trimmedEmail)
-            .single();
+        // Verify OTP using Supabase Auth
+        const { data, error } = await supabase.auth.verifyOtp({
+            email: trimmedEmail,
+            token: trimmedOTP,
+            type: 'email',
+        });
 
-        if (fetchError || !verification) {
+        if (error) {
+            console.error('❌ Supabase Auth verification error:', error);
             return NextResponse.json(
-                { error: 'No verification request found. Please request a new OTP.' },
-                { status: 404 }
-            );
-        }
-
-        // Check if already verified
-        if (verification.verified) {
-            return NextResponse.json(
-                { error: 'Email already verified' },
+                { error: 'Invalid or expired verification code. Please try again.' },
                 { status: 400 }
             );
         }
 
-        // Check if OTP is expired
-        const expiresAt = new Date(verification.expires_at);
-        if (expiresAt < new Date()) {
+        if (!data) {
             return NextResponse.json(
-                { error: 'OTP has expired. Please request a new one.' },
+                { error: 'Verification failed. Please request a new code.' },
                 { status: 400 }
             );
         }
 
-        // Verify OTP
-        if (verification.otp !== trimmedOTP) {
-            return NextResponse.json(
-                { error: 'Invalid OTP. Please check and try again.' },
-                { status: 400 }
-            );
-        }
+        console.log('✅ OTP verified successfully');
 
-        // Mark verification as complete
-        const { error: updateVerificationError } = await supabase
+        // Update our custom users table
+        const serverSupabase = createServerSupabase();
+
+        // Mark verification as complete in email_verifications table
+        const { error: updateVerificationError } = await serverSupabase
             .from('email_verifications')
             .update({ verified: true })
-            .eq('google_email', session.user.email);
+            .eq('google_email', session.user.email)
+            .eq('college_email', trimmedEmail);
 
         if (updateVerificationError) {
-            console.error('Error updating verification:', updateVerificationError);
-            return NextResponse.json(
-                { error: 'Failed to complete verification' },
-                { status: 500 }
-            );
+            console.error('⚠️ Error updating verification record:', updateVerificationError);
+            // Continue anyway - main verification succeeded
         }
 
-        // Update user record
-        const { error: updateUserError } = await supabase
+        // Update user record with verified college email
+        const { error: updateUserError } = await serverSupabase
             .from('users')
             .update({
                 college_email: trimmedEmail,
@@ -103,12 +89,14 @@ export async function POST(request: NextRequest) {
             .eq('google_email', session.user.email);
 
         if (updateUserError) {
-            console.error('Error updating user:', updateUserError);
+            console.error('❌ Error updating user:', updateUserError);
             return NextResponse.json(
                 { error: 'Failed to update user verification status' },
                 { status: 500 }
             );
         }
+
+        console.log('✅ User verification completed');
 
         return NextResponse.json({
             success: true,
@@ -116,7 +104,7 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error) {
-        console.error('Verify OTP error:', error);
+        console.error('❌ Verify OTP error:', error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }
