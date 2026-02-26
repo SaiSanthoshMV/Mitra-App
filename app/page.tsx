@@ -37,11 +37,17 @@ export default function Home() {
         "Explore the vibrant student community and discover a wide range of clubs. ",
     },
     {
-      title: "About",
-      href: "/about",
+      title: "Materials",
+      href: "/materials",
       description:
-        "Learn more about our mission, vision, and the team behind MITRA.",
-    },
+        "Access notes, resources, and study materials to make college learning smoother. ",
+    }
+    // {
+    //   title: "About",
+    //   href: "/about",
+    //   description:
+    //     "Learn more about our mission, vision, and the team behind MITRA.",
+    // },
   ];
 
   return (

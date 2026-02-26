@@ -1,12 +1,9 @@
 // app/materials/MaterialsClient.tsx
-
 'use client';
 
 import confetti from 'canvas-confetti';
-
-import React, { useMemo, useState } from 'react';
-import { FileText, Download, Eye, Filter, BookOpen, GraduationCap, User, ExternalLink, Upload, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useMemo, useState, useCallback } from 'react';
+import { FileText, BookOpen, Upload, Sparkles, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -15,6 +12,8 @@ import LoginDialog from '@/components/LoginDialog';
 import { usePDFViewer } from '@/hooks/usePDFViewer';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import MaterialCard from './components/MaterialCard';
+import FilterSection from './components/FilterSection';
 
 type Material = {
     id: string;
@@ -33,115 +32,11 @@ function getUniqueValues(materials: Material[], key: keyof Material): string[] {
     return Array.from(new Set(values)).sort();
 }
 
-// Truncate uploader email to username
-function truncateEmail(email: string): string {
-    if (!email) return 'Anonymous';
-    const atIndex = email.indexOf('@');
-    return atIndex > 0 ? email.substring(0, atIndex) : email;
+interface MaterialsClientProps {
+    initialMaterials?: Material[];
 }
 
-// Material Card Component
-function MaterialCard({ material, onView }: { material: Material; onView: (url: string) => void }) {
-    const handleView = () => {
-        if (material.file_url) {
-            onView(material.file_url);
-        }
-    };
-
-    const handleDownload = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (material.file_url) {
-            window.open(material.file_url, '_blank', 'noopener,noreferrer');
-        }
-    };
-
-    return (
-        <Card
-            className="group relative overflow-hidden hover:shadow-xl hover:shadow-cyan-500/10 dark:hover:shadow-cyan-400/10 transition-all duration-300 cursor-pointer hover:-translate-y-1 border-slate-200 dark:border-slate-700"
-            onClick={handleView}
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleView();
-                }
-            }}
-            role="button"
-            aria-label={`View ${material.title}`}
-        >
-            {/* Hover gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent dark:from-cyan-400/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden />
-
-            <CardHeader className="relative z-10 pb-3">
-                {/* Preview Area */}
-                <div className="w-full h-40 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-lg flex items-center justify-center mb-3 overflow-hidden group-hover:scale-105 transition-transform duration-300">
-                    {material.preview_url ? (
-                        <div className="w-full h-full relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={material.preview_url}
-                                alt={`Preview of ${material.title}`}
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                    ) : (
-                        <FileText className="w-16 h-16 text-slate-400 dark:text-slate-500" />
-                    )}
-                </div>
-
-                <CardTitle className="text-lg line-clamp-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                    {material.title}
-                </CardTitle>
-            </CardHeader>
-
-            <CardContent className="relative z-10 space-y-2 pb-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <BookOpen className="w-4 h-4 text-cyan-500" />
-                    <span className="font-medium truncate">{material.subject}</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <GraduationCap className="w-4 h-4 text-cyan-500" />
-                    <Badge variant="outline" className="border-cyan-400/50 text-cyan-600 dark:text-cyan-400">
-                        {material.semester}
-                    </Badge>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="w-4 h-4 text-cyan-500" />
-                    <span className="text-xs truncate">{truncateEmail(material.uploaded_by)}</span>
-                </div>
-            </CardContent>
-
-            <CardFooter className="relative z-10 pt-3 flex gap-2">
-                <Button
-                    variant="default"
-                    size="sm"
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-700 text-white"
-                    onClick={handleView}
-                    aria-label={`View ${material.title}`}
-                >
-                    <Eye className="w-4 h-4" />
-                    View
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownload}
-                    aria-label={`Download ${material.title}`}
-                >
-                    <Download className="w-4 h-4" />
-                </Button>
-            </CardFooter>
-
-            {/* Bottom accent bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-cyan-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" aria-hidden />
-        </Card>
-    );
-}
-
-// Main Component
-export default function MaterialsClient({ initialMaterials = [] }: { initialMaterials?: Material[] }) {
+export default function MaterialsClient({ initialMaterials = [] }: MaterialsClientProps) {
     const [materials] = useState<Material[]>(initialMaterials);
     const [selectedSemester, setSelectedSemester] = useState<string>('all');
     const [selectedSubject, setSelectedSubject] = useState<string>('all');
@@ -151,25 +46,38 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
     const router = useRouter();
     const { data: session } = useSession();
 
-    // Handle upload button click
-    const handleUploadClick = () => {
+    // Memoize filter values
+    const semesters = useMemo(() => getUniqueValues(materials, 'semester'), [materials]);
+    const subjects = useMemo(() => getUniqueValues(materials, 'subject'), [materials]);
+
+    // Memoize filtered materials
+    const filteredMaterials = useMemo(() => {
+        return materials.filter(material => {
+            const semesterMatch = selectedSemester === 'all' || material.semester === selectedSemester;
+            const subjectMatch = selectedSubject === 'all' || material.subject === selectedSubject;
+            return semesterMatch && subjectMatch;
+        });
+    }, [materials, selectedSemester, selectedSubject]);
+
+    // Memoized callbacks
+    const handleUploadClick = useCallback(() => {
         if (session) {
-            // User is authenticated, navigate to upload page
             router.push('/materials/upload');
         } else {
-            // User is not authenticated, show login dialog
             setShowLoginDialog(true);
         }
-    };
+    }, [session, router]);
 
-    // Handle magic link button click
-    const handleMagicLinkClick = () => {
+    const handleMagicLinkClick = useCallback(() => {
         setShowGiftDialog(true);
-    };
+    }, []);
 
-    // Handle gift box click with confetti and redirect
-    const handleGiftBoxClick = async (url: string, event: React.MouseEvent<HTMLDivElement>) => {
-        // Fire confetti from the gift box position
+    const handleClearFilters = useCallback(() => {
+        setSelectedSemester('all');
+        setSelectedSubject('all');
+    }, []);
+
+    const handleGiftBoxClick = useCallback(async (url: string, event: React.MouseEvent<HTMLDivElement>) => {
         const rect = event.currentTarget.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
         const y = rect.top + rect.height / 2;
@@ -184,25 +92,11 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
             colors: ['#FFD700', '#FFA500', '#FF69B4', '#00CED1', '#FF6347'],
         });
 
-        // Wait a bit for confetti to show, then redirect
         setTimeout(() => {
             window.open(url, '_blank', 'noopener,noreferrer');
             setShowGiftDialog(false);
         }, 100);
-    };
-
-    // Get unique filter values
-    const semesters = useMemo(() => getUniqueValues(materials, 'semester'), [materials]);
-    const subjects = useMemo(() => getUniqueValues(materials, 'subject'), [materials]);
-
-    // Filter materials
-    const filteredMaterials = useMemo(() => {
-        return materials.filter(material => {
-            const semesterMatch = selectedSemester === 'all' || material.semester === selectedSemester;
-            const subjectMatch = selectedSubject === 'all' || material.subject === selectedSubject;
-            return semesterMatch && subjectMatch;
-        });
-    }, [materials, selectedSemester, selectedSubject]);
+    }, []);
 
     return (
         <>
@@ -250,102 +144,15 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
                     </div>
 
                     {/* Filter Section */}
-                    <div className="mb-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-5">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Filter className="w-5 h-5 text-cyan-500" />
-                            <h2 className="text-lg font-semibold text-foreground">Filters</h2>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Semester Filter */}
-                            <div className="space-y-2">
-                                <label htmlFor="semester-filter" className="flex items-center gap-2 text-sm font-medium text-foreground">
-                                    <GraduationCap className="w-4 h-4 text-cyan-500" />
-                                    Semester
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        id="semester-filter"
-                                        value={selectedSemester}
-                                        onChange={(e) => setSelectedSemester(e.target.value)}
-                                        className="w-full px-4 py-2.5 pr-10 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-lg text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all cursor-pointer appearance-none shadow-sm"
-                                        style={{
-                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2306b6d4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                                            backgroundRepeat: 'no-repeat',
-                                            backgroundPosition: 'right 0.75rem center',
-                                            backgroundSize: '1.25rem'
-                                        }}
-                                    >
-                                        <option value="all">All Semesters</option>
-                                        {semesters.map(sem => (
-                                            <option key={sem} value={sem}>{sem}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Subject Filter */}
-                            <div className="space-y-2">
-                                <label htmlFor="subject-filter" className="flex items-center gap-2 text-sm font-medium text-foreground">
-                                    <BookOpen className="w-4 h-4 text-cyan-500" />
-                                    Subject
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        id="subject-filter"
-                                        value={selectedSubject}
-                                        onChange={(e) => setSelectedSubject(e.target.value)}
-                                        className="w-full px-4 py-2.5 pr-10 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-lg text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all cursor-pointer appearance-none shadow-sm"
-                                        style={{
-                                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2306b6d4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                                            backgroundRepeat: 'no-repeat',
-                                            backgroundPosition: 'right 0.75rem center',
-                                            backgroundSize: '1.25rem'
-                                        }}
-                                    >
-                                        <option value="all">All Subjects</option>
-                                        {subjects.map(sub => (
-                                            <option key={sub} value={sub}>{sub}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Active Filters Display */}
-                        {(selectedSemester !== 'all' || selectedSubject !== 'all') && (
-                            <div className="mt-4 flex items-center gap-2 flex-wrap">
-                                <span className="text-sm text-muted-foreground">Active filters:</span>
-                                {selectedSemester !== 'all' && (
-                                    <Badge
-                                        variant="secondary"
-                                        className="cursor-pointer hover:bg-destructive hover:text-white transition-colors"
-                                        onClick={() => setSelectedSemester('all')}
-                                    >
-                                        {selectedSemester} ×
-                                    </Badge>
-                                )}
-                                {selectedSubject !== 'all' && (
-                                    <Badge
-                                        variant="secondary"
-                                        className="cursor-pointer hover:bg-destructive hover:text-white transition-colors"
-                                        onClick={() => setSelectedSubject('all')}
-                                    >
-                                        {selectedSubject} ×
-                                    </Badge>
-                                )}
-                                <button
-                                    onClick={() => {
-                                        setSelectedSemester('all');
-                                        setSelectedSubject('all');
-                                    }}
-                                    className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline ml-2"
-                                >
-                                    Clear all
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    <FilterSection
+                        semesters={semesters}
+                        subjects={subjects}
+                        selectedSemester={selectedSemester}
+                        selectedSubject={selectedSubject}
+                        onSemesterChange={setSelectedSemester}
+                        onSubjectChange={setSelectedSubject}
+                        onClearFilters={handleClearFilters}
+                    />
 
                     {/* Materials Grid */}
                     {filteredMaterials.length > 0 ? (
@@ -372,10 +179,7 @@ export default function MaterialsClient({ initialMaterials = [] }: { initialMate
                                 <Button
                                     variant="outline"
                                     className="mt-6 border-cyan-400/50 hover:bg-cyan-50 dark:hover:bg-cyan-950"
-                                    onClick={() => {
-                                        setSelectedSemester('all');
-                                        setSelectedSubject('all');
-                                    }}
+                                    onClick={handleClearFilters}
                                 >
                                     Clear Filters
                                 </Button>
