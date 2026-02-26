@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { Home, Link as LinkIcon, BookOpen, GraduationCap, Building2, Users, Info } from "lucide-react"
+import { Home, Link as LinkIcon, BookOpen, GraduationCap, Building2, Users, Info, LogOut, User, FileText } from "lucide-react"
 import Logo from "@/components/nav/logo"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -13,7 +13,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { AnimatedThemeToggler } from "./magicui/animated-theme-toggler"
-import Image from "next/image"
+import { useSession, signOut } from "next-auth/react"
 
 const navigationLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -21,6 +21,7 @@ const navigationLinks = [
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/placements", label: "Placements", icon: GraduationCap },
   { href: "/company", label: "Company", icon: Building2 },
+  { href: "/materials", label: "Materials", icon: FileText },
   { href: "/clubs", label: "Clubs", icon: Users },
   { href: "/about", label: "About", icon: Info }
 ]
@@ -28,6 +29,12 @@ const navigationLinks = [
 export default function Component() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { data: session } = useSession()
+
+  // Handle logout
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/materials' })
+  }
 
   // Close menu when route changes
   useEffect(() => {
@@ -41,7 +48,7 @@ export default function Component() {
     } else {
       document.body.style.overflow = 'unset'
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset'
     }
@@ -55,28 +62,25 @@ export default function Component() {
           <div className="flex gap-2">
             <div className="flex items-center md:hidden">
               {/* Enhanced Mobile menu trigger */}
-              <Button 
-                className="group size-10 relative z-50" 
-                variant="ghost" 
+              <Button
+                className="group size-10 relative z-50"
+                variant="ghost"
                 size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 <div className="relative w-6 h-6 flex flex-col justify-center items-center">
                   {/* Animated hamburger lines */}
-                  <span 
-                    className={`block h-0.5 w-6 bg-current transition-all duration-300 transform ${
-                      isMobileMenuOpen ? 'rotate-45 translate-y-0.5' : '-translate-y-1.5'
-                    }`}
+                  <span
+                    className={`block h-0.5 w-6 bg-current transition-all duration-300 transform ${isMobileMenuOpen ? 'rotate-45 translate-y-0.5' : '-translate-y-1.5'
+                      }`}
                   />
-                  <span 
-                    className={`block h-0.5 w-6 bg-current transition-all duration-300 ${
-                      isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-                    }`}
+                  <span
+                    className={`block h-0.5 w-6 bg-current transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                      }`}
                   />
-                  <span 
-                    className={`block h-0.5 w-6 bg-current transition-all duration-300 transform ${
-                      isMobileMenuOpen ? '-rotate-45 -translate-y-0.5' : 'translate-y-1.5'
-                    }`}
+                  <span
+                    className={`block h-0.5 w-6 bg-current transition-all duration-300 transform ${isMobileMenuOpen ? '-rotate-45 -translate-y-0.5' : 'translate-y-1.5'
+                      }`}
                   />
                 </div>
                 <span className="sr-only">Toggle menu</span>
@@ -96,19 +100,17 @@ export default function Component() {
                       <NavigationMenuItem key={link.href} className="h-full">
                         <NavigationMenuLink
                           href={link.href}
-                          className={`font-['Playfair_Display'] text-lg text-muted-foreground hover:text-primary border-b-primary hover:border-b-primary data-[active]:border-b-primary h-full justify-center rounded-none border-y-2 border-transparent px-3 py-1.5 font-medium hover:bg-transparent data-[active]:bg-transparent flex items-center gap-2 transition-all duration-200 group ${
-                            pathname === link.href
-                              ? "border-b-primary text-primary"
-                              : "text-muted-foreground"
-                          }`}
+                          className={`font-['Playfair_Display'] text-lg text-muted-foreground hover:text-primary border-b-primary hover:border-b-primary data-[active]:border-b-primary h-full justify-center rounded-none border-y-2 border-transparent px-3 py-1.5 font-medium hover:bg-transparent data-[active]:bg-transparent flex items-center gap-2 transition-all duration-200 group ${pathname === link.href
+                            ? "border-b-primary text-primary"
+                            : "text-muted-foreground"
+                            }`}
                         >
-                          <IconComponent 
-                            size={18} 
-                            className={`transition-all duration-200 ${
-                              pathname === link.href 
-                                ? "text-primary scale-110" 
-                                : "text-muted-foreground group-hover:text-primary group-hover:scale-105"
-                            }`} 
+                          <IconComponent
+                            size={18}
+                            className={`transition-all duration-200 ${pathname === link.href
+                              ? "text-primary scale-110"
+                              : "text-muted-foreground group-hover:text-primary group-hover:scale-105"
+                              }`}
                           />
                           <span>{link.label}</span>
                         </NavigationMenuLink>
@@ -122,24 +124,43 @@ export default function Component() {
 
           {/* Right side */}
           <div className="flex items-center gap-2 relative z-50">
+            {/* Show user info and logout if logged in */}
+            {session && session.user?.email && (
+              <div className="hidden md:flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/30 rounded-lg border border-cyan-200 dark:border-cyan-800">
+                  <User className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <span className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
+                    {session.user.email.split('@')[0]}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="ml-2">Logout</span>
+                </Button>
+              </div>
+            )}
             <AnimatedThemeToggler />
           </div>
         </div>
       </header>
 
       {/* Mobile Menu Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300 ${
-          isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Enhanced Mobile Menu Drawer */}
-      <div 
-        className={`fixed top-0 left-0 h-full w-80 bg-background/95 backdrop-blur-lg border-r shadow-2xl z-40 md:hidden transform transition-transform duration-300 ease-out ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 left-0 h-full w-80 bg-background/95 backdrop-blur-lg border-r shadow-2xl z-40 md:hidden transform transition-transform duration-300 ease-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Menu Header */}
         <div className="h-16 border-b flex items-center justify-between px-6">
@@ -163,11 +184,10 @@ export default function Component() {
               <a
                 key={link.href}
                 href={link.href}
-                className={`relative group px-6 py-4 font-['Playfair_Display'] text-lg transition-all duration-200 hover:bg-accent/50 hover:translate-x-1 ${
-                  pathname === link.href 
-                    ? "text-primary bg-primary/10 border-r-4 border-primary shadow-lg" 
-                    : "text-foreground hover:text-primary border-r-4 border-transparent hover:border-primary/30"
-                }`}
+                className={`relative group px-6 py-4 font-['Playfair_Display'] text-lg transition-all duration-200 hover:bg-accent/50 hover:translate-x-1 ${pathname === link.href
+                  ? "text-primary bg-primary/10 border-r-4 border-primary shadow-lg"
+                  : "text-foreground hover:text-primary border-r-4 border-transparent hover:border-primary/30"
+                  }`}
                 style={{
                   animationDelay: `${index * 75}ms`,
                   animation: isMobileMenuOpen ? 'slideInFromLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none'
@@ -175,14 +195,13 @@ export default function Component() {
               >
                 <div className="flex items-center gap-4">
                   {/* Enhanced Icon Design */}
-                  <div className={`p-2 rounded-xl transition-all duration-200 ${
-                    pathname === link.href 
-                      ? "bg-primary/20 text-primary scale-110 shadow-lg" 
-                      : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:scale-105"
-                  }`}>
+                  <div className={`p-2 rounded-xl transition-all duration-200 ${pathname === link.href
+                    ? "bg-primary/20 text-primary scale-110 shadow-lg"
+                    : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:scale-105"
+                    }`}>
                     <IconComponent size={20} />
                   </div>
-                  
+
                   <div className="flex flex-col">
                     <span className="font-medium">
                       {link.label}
@@ -195,15 +214,15 @@ export default function Component() {
                       {link.href === "/resources" && "Study materials"}
                       {link.href === "/placements" && "Career opportunities"}
                       {link.href === "/company" && "Corporate info"}
+                      {link.href === "/materials" && "Notes & PDFs"}
                       {link.href === "/clubs" && "Student organizations"}
                     </span>
-                    
+
                     {/* Enhanced underline animation */}
-                    <span className={`h-0.5 bg-gradient-to-r from-primary to-primary/50 transition-all duration-300 mt-1 ${
-                      pathname === link.href 
-                        ? "w-full opacity-100" 
-                        : "w-0 opacity-0 group-hover:w-3/4 group-hover:opacity-100"
-                    }`} />
+                    <span className={`h-0.5 bg-gradient-to-r from-primary to-primary/50 transition-all duration-300 mt-1 ${pathname === link.href
+                      ? "w-full opacity-100"
+                      : "w-0 opacity-0 group-hover:w-3/4 group-hover:opacity-100"
+                      }`} />
                   </div>
 
                   {/* Arrow indicator for active item */}

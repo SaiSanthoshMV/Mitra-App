@@ -37,18 +37,24 @@ export default function Home() {
         "Explore the vibrant student community and discover a wide range of clubs. ",
     },
     {
-      title: "About",
-      href: "/about",
+      title: "Materials",
+      href: "/materials",
       description:
-        "Learn more about our mission, vision, and the team behind MITRA.",
-    },
+        "Access notes, resources, and study materials to make college learning smoother. ",
+    }
+    // {
+    //   title: "About",
+    //   href: "/about",
+    //   description:
+    //     "Learn more about our mission, vision, and the team behind MITRA.",
+    // },
   ];
 
   return (
     <div className="m-4 relative">
       {/* NSS Watermark Background */}
       <NSSWatermarkSmall variant="default" />
-      
+
       <div className="p-4 flex flex-col items-center justify-center text-center relative z-10">
         <h1
           className="text-5xl font-extrabold mb-4 text-center text-gray-800 dark:text-gray-100 font-['Poppins'] tracking-tight"

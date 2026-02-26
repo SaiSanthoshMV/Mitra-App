@@ -10,7 +10,6 @@ if (!url || !anonKey) {
 
 // avoid duplicated clients during HMR (dev)
 declare global {
-  // eslint-disable-next-line no-var
   var __supabase_client__: SupabaseClient | undefined;
 }
 
