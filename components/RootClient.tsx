@@ -12,7 +12,7 @@ import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
-const INSTAGRAM_URL = "https://www.instagram.com/nss.kmit/" as const;
+const INSTAGRAM_URL = "https://www.instagram.com/recurse.official/" as const;
 const SPLASH_TIMEOUT = 1000 as const;
 
 // Memoized Footer component to prevent unnecessary re-renders
@@ -35,7 +35,7 @@ const Footer = memo(() => {
           href="/about"
           className="text-sm text-gray-500 dark:text-gray-400 hover:text-cyan-400 dark:hover:text-cyan-300 transition-colors duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 rounded px-1"
         >
-          &copy; MITRA NSS KMIT {currentYear}
+          &copy; MITRA RECURSE KMIT {currentYear}
         </Link>
         <DeveloperIconButton className="ml-4" />
       </div>

@@ -16,12 +16,12 @@ export const metadata: Metadata = {
 // This keeps the server bundle tiny and delays client JS to when needed.
 import AboutActions from './AboutActions';
 
-export default function AboutPage(){
+export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
       {/* NSS Watermark Background */}
       <NSSWatermark variant="default" />
-      
+
       <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24 relative z-10">
         {/* Header Section */}
         <div className="text-center mb-16">
@@ -48,7 +48,7 @@ export default function AboutPage(){
                 centralizes college portals, placement materials, company insights and club information so that students can
                 find what they need quickly.
               </p>
-              
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center flex-shrink-0 mt-1">
@@ -83,7 +83,7 @@ export default function AboutPage(){
                 <span className="text-2xl mr-2">💡</span>Vision & Values
               </h2>
               <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
-                <strong className="text-cyan-600 dark:text-cyan-400">Mitra</strong> is an initiative by <span className="font-semibold">NSS KMIT</span>. It began with
+                <strong className="text-cyan-600 dark:text-cyan-400">Mitra</strong> is an initiative by <span className="font-semibold">RECURSE KMIT</span>. It began with
                 a simple mission: simplify student life by bringing all college-related resources under one roof. Built
                 by students, for students — to save time, reduce friction, and make campus life more manageable.
               </p>

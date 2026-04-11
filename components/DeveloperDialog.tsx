@@ -71,7 +71,7 @@ const ProfileCardSection = memo(() => {
     <div className=" mx-auto w-fit scale-82">
       <ProfileCard
         name="M Sai Santhosh"
-        title="NSS Coordinator"
+        title="Engineer KMIT'26"
         handle="SaiSanthoshMV"
         status="Online"
         contactText="Contact Me"
