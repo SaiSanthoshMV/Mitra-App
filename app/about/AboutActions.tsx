@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { ShineBorder } from '@/components/magicui/shine-border';
 import DeveloperDialog from '@/components/DeveloperDialog';
 
-const INSTAGRAM_URL = 'https://www.instagram.com/nss.kmit/';
+const INSTAGRAM_URL = 'https://www.instagram.com/recurse.official/';
 
 export default function AboutActions() {
   const [open, setOpen] = useState(false);
@@ -21,7 +21,7 @@ export default function AboutActions() {
                     bg-cyan-400 text-slate-900 hover:bg-cyan-300 focus:outline-none focus:ring-4 focus:ring-cyan-200/40 transition"
         >
           <InstagramIcon className="w-5 h-5" />
-          <span>NSS KMIT</span>
+          <span>RECURSE KMIT</span>
         </a>
 
         <div className="relative inline-block rounded-2xl overflow-hidden">

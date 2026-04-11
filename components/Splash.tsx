@@ -35,7 +35,7 @@ const SplashText = memo(({ textControls }: { textControls: ReturnType<typeof use
     className="mt-1 text-sm"
     aria-hidden={false}
   >
-    Initiative by <span className="font-semibold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">NSS KMIT</span>
+    Initiative by <span className="font-semibold bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent">RECURSE KMIT</span>
   </motion.p>
 ));
 SplashText.displayName = "SplashText";
