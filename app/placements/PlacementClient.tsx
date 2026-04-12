@@ -2,36 +2,35 @@
 
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Search, ChevronDown, FileText, Building2, TriangleAlert } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Search, ChevronDown, FileText, Building2 } from 'lucide-react';
 import PDFViewer from '@/components/PDFViewer';
 import { usePDFViewer } from '@/hooks/usePDFViewer';
-
-type CompanyDocument = {
-  id: number | string;
-  title: string;
-  url: string;
-  company_id: number | string;
-};
-
-type Company = {
-  id: number | string;
-  sno: number | string;
-  name: string;
-  offers: string;
-  month: string;
-  stipend?: string | null;
-  ctc: string;
-  description: string;
-  process: string;
-  company_documents?: CompanyDocument[] | null;
-};
+import type { Company } from './shared';
+import { PLACEMENT_LOGO_SEARCH_EVENT } from './shared';
 
 export default function PlacementClient({ initialCompanies = [] }: { initialCompanies?: Company[] }) {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [expandedRows, setExpandedRows] = useState<Set<string | number>>(() => new Set());
   const [companies] = useState<Company[]>(() => initialCompanies);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const { pdfUrl, openPDF, closePDF } = usePDFViewer();
+
+  useEffect(() => {
+    const handleLogoSearch = (event: Event) => {
+      const customEvent = event as CustomEvent<{ companyName?: string }>;
+      const companyName = customEvent.detail?.companyName?.trim();
+      if (!companyName) return;
+
+      setSearchTerm(companyName);
+      searchInputRef.current?.focus();
+    };
+
+    window.addEventListener(PLACEMENT_LOGO_SEARCH_EVENT, handleLogoSearch as EventListener);
+    return () => {
+      window.removeEventListener(PLACEMENT_LOGO_SEARCH_EVENT, handleLogoSearch as EventListener);
+    };
+  }, []);
 
   // memoized filtered list (including stipend in search)
   const filteredCompanies = useMemo(() => {
@@ -73,6 +72,7 @@ export default function PlacementClient({ initialCompanies = [] }: { initialComp
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 w-5 h-5" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search for companies, job roles, CTC or stipend..."
               value={searchTerm}
@@ -244,12 +244,7 @@ export default function PlacementClient({ initialCompanies = [] }: { initialComp
             </table>
           </div>
         </div>
-        <div className="mt-8 flex items-start gap-3 p-4 rounded-xl border border-amber-300/40 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/30">
-          <TriangleAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
-            These Placement Records may not be accurate and are only intended to make students aware of different company recruitments.
-          </p>
-        </div>
+
       </div>
 
       {/* PDF Viewer */}
