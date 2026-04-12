@@ -210,11 +210,11 @@ export default function Component() {
                     <span className="text-xs text-muted-foreground/70 font-normal">
                       {link.href === "/" && "Welcome page"}
                       {link.href === "/about" && "Learn more about us"}
-                      {link.href === "/links" && "Useful resources"}
+                      {link.href === "/links" && "College Platforms"}
                       {link.href === "/resources" && "Study materials"}
-                      {link.href === "/placements" && "Career opportunities"}
-                      {link.href === "/company" && "Corporate info"}
-                      {link.href === "/materials" && "Notes & PDFs"}
+                      {link.href === "/placements" && "College Placements"}
+                      {link.href === "/company" && "Company Specific"}
+                      {link.href === "/materials" && "SEM Notes"}
                       {link.href === "/clubs" && "Student organizations"}
                     </span>
 

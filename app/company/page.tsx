@@ -8,7 +8,7 @@ import NSSWatermark from '@/components/NSSWatermark';
 export const revalidate = 86400; // 24 hours ISR (adjust if you update resources frequently)
 
 export const metadata: Metadata = {
-  title: 'Company Resources • Mitra — NSS KMIT',
+  title: 'Company Resources • Mitra — RECURSE KMIT',
   description: 'Service- and product-based placement materials and company resources for KMIT students.',
 };
 

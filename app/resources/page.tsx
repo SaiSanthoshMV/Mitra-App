@@ -12,7 +12,7 @@ import ReloadPage from '@/components/ReloadPage';
 export const revalidate = 86400; // 24 hours ISR
 
 export const metadata: Metadata = {
-  title: 'Study Materials • Mitra — NSS KMIT',
+  title: 'Placement Resources • Mitra — RECURSE KMIT',
   description:
     'Subject-wise notes and resources for Keshav Memorial Institute of Technology students.',
 };

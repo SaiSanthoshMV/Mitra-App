@@ -1,7 +1,7 @@
 // components/RootClient.tsx
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SessionProvider from "@/components/SessionProvider";
 import Navbar from "@/components/Navbar";
@@ -11,9 +11,11 @@ import DeveloperIconButton from "./DeveloperIconButton";
 import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { usePathname } from "next/navigation";
 
 const INSTAGRAM_URL = "https://www.instagram.com/recurse.official/" as const;
-const SPLASH_TIMEOUT = 1000 as const;
+const DEFAULT_SPLASH_TIMEOUT = 1000 as const;
+const MATERIALS_SPLASH_TIMEOUT = 6000 as const;
 
 // Memoized Footer component to prevent unnecessary re-renders
 const Footer = memo(() => {
@@ -27,7 +29,7 @@ const Footer = memo(() => {
           target="_blank"
           rel="noopener noreferrer"
           className="mr-4 inline-flex items-center justify-center p-2 rounded-full text-gray-500 dark:text-gray-400 hover:text-cyan-400 dark:hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 transition-colors duration-150"
-          aria-label="NSS KMIT Instagram"
+          aria-label="RECURSE KMIT Instagram"
         >
           <InstagramIcon className="w-5 h-5" />
         </Link>
@@ -47,15 +49,53 @@ Footer.displayName = 'Footer';
 
 function RootClient({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
+  const pathname = usePathname();
+  const splashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasInitializedRef = useRef(false);
 
   const hideSplash = useCallback(() => {
     setShowSplash(false);
   }, []);
 
+  const startSplashTimer = useCallback(
+    (duration: number) => {
+      if (splashTimeoutRef.current) {
+        clearTimeout(splashTimeoutRef.current);
+      }
+
+      setShowSplash(true);
+      splashTimeoutRef.current = setTimeout(hideSplash, duration);
+    },
+    [hideSplash],
+  );
+
   useEffect(() => {
-    const timeoutId = setTimeout(hideSplash, SPLASH_TIMEOUT);
-    return () => clearTimeout(timeoutId);
-  }, [hideSplash]);
+    const isMaterialsRoute = pathname?.startsWith("/materials");
+
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      startSplashTimer(
+        isMaterialsRoute ? MATERIALS_SPLASH_TIMEOUT : DEFAULT_SPLASH_TIMEOUT,
+      );
+
+      return () => {
+        if (splashTimeoutRef.current) {
+          clearTimeout(splashTimeoutRef.current);
+        }
+      };
+    }
+
+    if (isMaterialsRoute) {
+      startSplashTimer(MATERIALS_SPLASH_TIMEOUT);
+      return;
+    }
+
+    if (splashTimeoutRef.current) {
+      clearTimeout(splashTimeoutRef.current);
+      splashTimeoutRef.current = null;
+    }
+    setShowSplash(false);
+  }, [pathname, startSplashTimer]);
 
   return (
     <SessionProvider>

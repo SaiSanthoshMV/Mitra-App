@@ -8,7 +8,7 @@ import NSSWatermark from '@/components/NSSWatermark';
 export const revalidate = 86400; // 24 hours ISR (adjust if you update links often)
 
 export const metadata: Metadata = {
-  title: 'College Links • Mitra — NSS KMIT',
+  title: 'College Links • Mitra — RECURSE KMIT',
   description: 'Quick access to college portals, wifi passwords and other resources for KMIT students.',
 };
 

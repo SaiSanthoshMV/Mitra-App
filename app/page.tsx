@@ -48,6 +48,9 @@ export default function Home() {
     //   description:
     //     "Learn more about our mission, vision, and the team behind MITRA.",
     // },
+
+    // materials page watermark , placements page adding movable companies logos
+    // debug routes removal
   ];
 
   return (
