@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import PDFViewer from '@/components/PDFViewer';
 import LoginDialog from '@/components/LoginDialog';
+import NSSWatermarkSmall from '@/components/NSSWatermarkSmall';
 import { usePDFViewer } from '@/hooks/usePDFViewer';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -100,8 +101,10 @@ export default function MaterialsClient({ initialMaterials = [] }: MaterialsClie
 
     return (
         <>
-            <div className="min-h-screen bg-background">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="relative min-h-screen bg-background overflow-hidden">
+                <NSSWatermarkSmall variant="default" />
+
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Header Section */}
                     <div className="mb-10">
                         <div className="flex items-center justify-between mb-3">

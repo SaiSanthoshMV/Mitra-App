@@ -4,8 +4,16 @@ import { Suspense } from 'react';
 import { createServerSupabase } from '@/lib/supabaseServer';
 import MaterialsClient from './MaterialsClient';
 import LoadingSkeleton from './loading';
+import { Metadata } from 'next';
 
 export const revalidate = 60; // Revalidate every 60 seconds for ISR
+
+export const metadata: Metadata = {
+    title: 'Study Materials • Mitra — RECURSE KMIT',
+    description:
+        'Subject-wise notes and resources for Keshav Memorial Institute of Technology students.',
+};
+
 
 type Material = {
     id: string;
@@ -39,12 +47,16 @@ async function getMaterials(): Promise<Material[]> {
     }
 }
 
-export default async function MaterialsPage() {
+async function MaterialsContent() {
     const materials = await getMaterials();
 
+    return <MaterialsClient initialMaterials={materials} />;
+}
+
+export default function MaterialsPage() {
     return (
         <Suspense fallback={<LoadingSkeleton />}>
-            <MaterialsClient initialMaterials={materials} />
+            <MaterialsContent />
         </Suspense>
     );
 }

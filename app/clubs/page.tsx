@@ -12,7 +12,7 @@ import ReloadPage from '@/components/ReloadPage';
 export const revalidate = 86400; // ISR: 24 hours (adjust if content updates more/less frequently)
 
 export const metadata: Metadata = {
-  title: 'Clubs • Mitra — NSS KMIT',
+  title: 'Clubs • Mitra — RECURSE KMIT',
   description: 'Find student clubs, their portals and resources at Keshav Memorial Institute of Technology.',
 };
 
