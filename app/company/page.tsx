@@ -98,6 +98,7 @@ export default async function Page(): Promise<React.JSX.Element> {
             serviceResources={serviceResources}
             productResources={productResources}
           />
+
         </div>
       </main>
     );

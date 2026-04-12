@@ -1,9 +1,9 @@
 // app/placements/page.tsx
 
 import React from 'react';
-import { createServerSupabase } from '@/lib/supabaseServer';
 import type { Metadata } from 'next';
 import NSSWatermark from '@/components/NSSWatermark';
+import { getPlacementsPageData } from './server-data';
 
 export const revalidate = 3600; // 1 hour ISR — adjust as needed
 
@@ -12,45 +12,19 @@ export const metadata: Metadata = {
   description: 'Campus placement records — companies, offers, ctc and documents for KMIT students.',
 };
 
-type CompanyDocument = {
-  id: number;
-  title: string;
-  url: string;
-  company_id: number;
-};
-
-type Company = {
-  id: number;
-  sno: number;
-  name: string;
-  offers: string;
-  month: string;
-  stipend?: string | null;
-  ctc: string;
-  description: string;
-  process: string;
-  company_documents?: CompanyDocument[] | null;
-};
-
 // client component is interactive — import dynamically so server bundle stays lean
 import PlacementClient from './PlacementClient';
-import { Building2 } from 'lucide-react';
+import { Building2, TriangleAlert } from 'lucide-react';
 import NSSWatermarkSmall from '@/components/NSSWatermarkSmall';
 import ReloadPage from '@/components/ReloadPage';
+import LogoLoopPage from '@/components/LogoLoopPage';
+
 export default async function Page(): Promise<React.JSX.Element> {
-  const supabase = createServerSupabase();
-
   try {
-    const { data, error } = await supabase
-      .from('companies')
-      .select(
-        `id, sno, name, offers, month, stipend, ctc, description, process, company_documents(id, title, url, company_id)`
-      )
-      .order('sno', { ascending: true })
-      .limit(1000);
+    const { companies, companyLogos, companiesError, logosError } = await getPlacementsPageData();
 
-    if (error) {
-      console.error('Supabase error (placements):', error);
+    if (companiesError) {
+      console.error('Supabase error (placements):', companiesError);
       return (
         <main className="min-h-screen p-6 relative">
           <NSSWatermark variant="minimal" />
@@ -59,26 +33,9 @@ export default async function Page(): Promise<React.JSX.Element> {
       );
     }
 
-    // ensure serializable — convert Date objects to strings if needed
-    const companies: Company[] = (Array.isArray(data) ? data : []).map((c): Company => ({
-      id: c.id as number,
-      sno: c.sno as number,
-      name: (c.name ?? '') as string,
-      offers: (c.offers ?? '') as string,
-      month: (c.month ?? '') as string,
-      stipend: (c.stipend ?? null) as string | null,
-      ctc: (c.ctc ?? '') as string,
-      description: (c.description ?? '') as string,
-      process: (c.process ?? '') as string,
-      company_documents: Array.isArray(c.company_documents)
-        ? c.company_documents.map((d): CompanyDocument => ({
-          id: d.id as number,
-          title: (d.title ?? '') as string,
-          url: (d.url ?? '') as string,
-          company_id: d.company_id as number,
-        }))
-        : [],
-    }));
+    if (logosError) {
+      console.error('Supabase error (company logos):', logosError);
+    }
 
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4 md:p-6 relative">
@@ -96,6 +53,15 @@ export default async function Page(): Promise<React.JSX.Element> {
           {/* Render the client component with initial data */}
           {/* It will hydrate on the client and provide the interactive behaviors */}
           <PlacementClient initialCompanies={companies} />
+
+          <LogoLoopPage logos={companyLogos} />
+
+          <div className="mt-8 flex items-start gap-3 p-4 rounded-xl border border-amber-300/40 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/30">
+            <TriangleAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+              These Placement Records may not be accurate and are only intended to make students aware of different company recruitments.
+            </p>
+          </div>
         </div>
       </main>
     );
