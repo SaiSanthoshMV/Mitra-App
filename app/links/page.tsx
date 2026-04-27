@@ -50,7 +50,7 @@ export default async function LinksPageServer(): Promise<React.JSX.Element> {
       return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
           {/* NSS Watermark Background */}
-          <NSSWatermark variant="default" />
+          {/* <NSSWatermark variant="default" /> */}
 
           <ReloadPage />
         </main>
@@ -67,7 +67,7 @@ export default async function LinksPageServer(): Promise<React.JSX.Element> {
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
         {/* NSS Watermark Background */}
-        <NSSWatermark variant="default" />
+        {/* <NSSWatermark variant="default" /> */}
 
         <div className="relative z-10 px-6 py-8">
           <div className="max-w-md mx-auto">

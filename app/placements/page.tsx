@@ -27,7 +27,7 @@ export default async function Page(): Promise<React.JSX.Element> {
       console.error('Supabase error (placements):', companiesError);
       return (
         <main className="min-h-screen p-6 relative">
-          <NSSWatermark variant="minimal" />
+          {/* <NSSWatermark variant="minimal" /> */}
           <ReloadPage />
         </main>
       );
@@ -39,7 +39,7 @@ export default async function Page(): Promise<React.JSX.Element> {
 
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4 md:p-6 relative">
-        <NSSWatermarkSmall variant="default" />
+        {/* <NSSWatermarkSmall variant="default" /> */}
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
@@ -69,7 +69,7 @@ export default async function Page(): Promise<React.JSX.Element> {
     console.error('Unexpected error in placements page:', err);
     return (
       <main className="min-h-screen p-6 relative">
-        <NSSWatermark variant="minimal" />
+        {/* <NSSWatermark variant="minimal" /> */}
         <div className="max-w-6xl mx-auto relative z-10">
           <h1 className="text-2xl font-semibold text-red-600">Something went wrong</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Try again in a few minutes.</p>

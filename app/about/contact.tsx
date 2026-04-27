@@ -2,11 +2,12 @@
 'use client';
 
 import React from 'react';
+import { Headphones } from 'lucide-react';
 import { Dock, DockIcon } from '@/components/magicui/dock';
 
 export type IconProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
-export function DockDemo(){
+export function DockDemo() {
   return (
     <div className="relative">
       <Dock iconMagnification={60} iconDistance={100}>
@@ -17,20 +18,26 @@ export function DockDemo(){
         </DockIcon>
 
         <DockIcon className="bg-black/10 dark:bg-white/10">
-          <a href="https://github.com/saisanthoshmv" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-            <Icons.gitHub className="size-full" />
-          </a>
-        </DockIcon>
-
-        <DockIcon className="bg-black/10 dark:bg-white/10">
           <a href="mailto:mvs.sai999@gmail.com" aria-label="Email">
             <Icons.mail className="size-full" />
           </a>
         </DockIcon>
 
         <DockIcon className="bg-black/10 dark:bg-white/10">
+          <a href="https://linktr.ee/saigadutunes" target="_blank" rel="noopener noreferrer" aria-label="Music">
+            <Icons.music className="size-full" />
+          </a>
+        </DockIcon>
+
+        <DockIcon className="bg-black/10 dark:bg-white/10">
           <a href="https://saisanthoshmv.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Website">
             <Icons.globe className="size-full" />
+          </a>
+        </DockIcon>
+
+        <DockIcon className="bg-black/10 dark:bg-white/10">
+          <a href="https://github.com/saisanthoshmv" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+            <Icons.gitHub className="size-full" />
           </a>
         </DockIcon>
       </Dock>
@@ -51,6 +58,10 @@ const Icons = {
       <title>LinkedIn</title>
       <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM7.34 18.67H4.67V9.33h2.67v9.34zM6 8.26c-0.9 0-1.6-0.73-1.6-1.65 0-0.92 0.7-1.65 1.6-1.65s1.6 0.73 1.6 1.65c0 0.92-0.7 1.65-1.6 1.65zM20.34 18.67h-2.67v-4.6c0-1.09-0.02-2.49-1.52-2.49-1.52 0-1.75 1.19-1.75 2.42v4.67H10.7V9.33h2.56v1.27h0.03c0.36-0.68 1.24-1.4 2.55-1.4 2.73 0 3.24 1.8 3.24 4.14v5.33z" />
     </svg>
+  ),
+
+  music: (props: IconProps) => (
+    <Headphones aria-hidden="true" {...props} />
   ),
 
   mail: (props: IconProps) => (

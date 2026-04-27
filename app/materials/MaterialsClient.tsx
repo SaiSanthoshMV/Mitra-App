@@ -102,7 +102,7 @@ export default function MaterialsClient({ initialMaterials = [] }: MaterialsClie
     return (
         <>
             <div className="relative min-h-screen bg-background overflow-hidden">
-                <NSSWatermarkSmall variant="default" />
+                {/* <NSSWatermarkSmall variant="default" />  */}
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Header Section */}

@@ -49,7 +49,7 @@ export default async function Page(): Promise<React.JSX.Element> {
       console.error('Supabase fetch error (resources):', { subjectsError, documentsError });
       return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
-          <NSSWatermark variant="default" />
+          {/* <NSSWatermark variant="default" /> */}
           <ReloadPage />
         </main>
       );
@@ -79,7 +79,7 @@ export default async function Page(): Promise<React.JSX.Element> {
 
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
-        <NSSWatermarkSmall variant="default" />
+        {/* <NSSWatermarkSmall variant="default" /> */}
         <div className="relative z-10 py-6 px-4 max-w-3xl mx-auto">
           <header className="flex items-center gap-4 mb-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-md">
@@ -95,7 +95,7 @@ export default async function Page(): Promise<React.JSX.Element> {
     console.error('Unexpected error in resources page:', err);
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
-        <NSSWatermark variant="default" />
+        {/* <NSSWatermark variant="default" /> */}
         <div className="relative z-10 py-6 px-4 max-w-3xl mx-auto">
           <header className="flex items-center gap-4 mb-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-md">

@@ -7,7 +7,7 @@ import NSSWatermark from '@/components/NSSWatermark';
 export const revalidate = 86400; // cache for 24 hours (change as needed)
 
 export const metadata: Metadata = {
-  title: 'About • Mitra — NSS KMIT',
+  title: 'About • Mitra — RECURSE KMIT',
   description:
     'Mitra — a student companion web app for Keshav Memorial Institute of Technology. Built by NSS KMIT.',
 };
@@ -20,7 +20,7 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors relative overflow-hidden">
       {/* NSS Watermark Background */}
-      <NSSWatermark variant="default" />
+      {/* <NSSWatermark variant="default" /> */}
 
       <div className="max-w-7xl mx-auto px-6 py-16 lg:py-24 relative z-10">
         {/* Header Section */}
