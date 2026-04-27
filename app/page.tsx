@@ -3,6 +3,14 @@
 import ElectricGridCard from "@/components/ElectricGridCard";
 import { Typewriter } from "@/components/ui/typewriter";
 import NSSWatermarkSmall from "@/components/NSSWatermarkSmall";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Mitra — RECURSE KMIT',
+  description:
+    'Home Page of MITRA app for Keshav Memorial Institute of Technology students.',
+};
+
 
 export default function Home() {
   const cards = [
@@ -56,7 +64,7 @@ export default function Home() {
   return (
     <div className="m-4 relative">
       {/* NSS Watermark Background */}
-      <NSSWatermarkSmall variant="default" />
+      {/* <NSSWatermarkSmall variant="default" /> */}
 
       <div className="p-4 flex flex-col items-center justify-center text-center relative z-10">
         <h1

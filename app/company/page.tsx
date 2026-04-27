@@ -74,7 +74,7 @@ export default async function Page(): Promise<React.JSX.Element> {
 
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 p-4 md:p-6 lg:p-8 relative">
-        <NSSWatermark variant="default" />
+        {/* <NSSWatermark variant="default" /> */}
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Page Header */}
           <div className="mb-10">
@@ -106,7 +106,7 @@ export default async function Page(): Promise<React.JSX.Element> {
     console.error('Unexpected error in company page:', err);
     return (
       <main className="min-h-screen p-6 relative">
-        <NSSWatermark variant="minimal" />
+        {/* <NSSWatermark variant="minimal" /> */}
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-xl mb-6">

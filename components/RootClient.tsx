@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 
 const INSTAGRAM_URL = "https://www.instagram.com/recurse.official/" as const;
 const DEFAULT_SPLASH_TIMEOUT = 1000 as const;
-const MATERIALS_SPLASH_TIMEOUT = 6000 as const;
+const MATERIALS_SPLASH_TIMEOUT = 500 as const;
 
 // Memoized Footer component to prevent unnecessary re-renders
 const Footer = memo(() => {
